@@ -35,6 +35,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
+    ".next-e2e/types/**/*.ts",
+    ".next-e2e/dev/types/**/*.ts",
     ".next-phase1-validation/types/**/*.ts",
     ".next-phase1-validation/dev/types/**/*.ts",
     ".next-phase1-validation-2/types/**/*.ts",

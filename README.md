@@ -6,7 +6,7 @@ RallyLoop is a responsive web app foundation for recreational court sports. Its 
 
 ## Current phase
 
-Phase 5 includes authentication, facility/session management, transactional FIFO queue operations, match assignment and lifecycle, and session-scoped live updates. Signed-in participants and facility staff receive minimal change notifications and reload authoritative queue, court, and match data. A manual refresh remains available, and reconnects trigger a fresh load.
+Phase 6 includes authentication, facility/session management, transactional FIFO queue operations, match assignment and lifecycle, session-scoped live updates, and QA/accessibility/security hardening. Signed-in participants and facility staff receive minimal change notifications and reload authoritative queue, court, and match data. A manual refresh remains available, and reconnects trigger a fresh load.
 
 ## Requirements
 
@@ -48,6 +48,18 @@ RLS protects profiles, facility memberships, courts, sessions, queue entries, an
 
 Run the RLS contract tests against a Supabase database with pgTAP available: [`phase1_auth_rls.test.sql`](./supabase/tests/database/phase1_auth_rls.test.sql), [`phase2_facilities_sessions.test.sql`](./supabase/tests/database/phase2_facilities_sessions.test.sql), [`phase3_queue.test.sql`](./supabase/tests/database/phase3_queue.test.sql), [`phase4_matches.test.sql`](./supabase/tests/database/phase4_matches.test.sql), and [`phase5_realtime.test.sql`](./supabase/tests/database/phase5_realtime.test.sql). Unit tests cover auth, facility input, queue rules, and match lifecycle rules.
 
+### End-to-end testing
+
+Install the Playwright browser once with `npx playwright install chromium`, then run `npm run test:e2e`. The default run starts a local app on port 3100 with Supabase disabled and isolated build output; it exercises public-page responsiveness, authentication form labels, and keyboard navigation without accessing configured `.env.local` services. Authenticated tests are skipped unless the `E2E_*` variables are configured.
+
+For authenticated journeys, configure the Playwright process with a **separate, disposable Supabase test project**, its URL/publishable key, two confirmed player accounts, a facility staff account, a facility administrator account, and the IDs of a facility, an open session, and an available court linked to that session. The session must use exactly two players per match, have an empty queue, and have no active matches. Set `E2E_PLAYER_EMAIL`, `E2E_PLAYER_PASSWORD`, `E2E_SECOND_PLAYER_EMAIL`, `E2E_SECOND_PLAYER_PASSWORD`, `E2E_STAFF_EMAIL`, `E2E_STAFF_PASSWORD`, `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_SESSION_ID`, `E2E_FACILITY_ID`, and `E2E_COURT_ID`. The staff account must have the `staff` role (not `admin`) so the suite can verify the configuration boundary. These tests intentionally mutate queue and match state; never point them at production or a facility containing real player activity. Apply the Phase 1–5 migrations in the test project first. Use CI secret storage or process environment variables for test credentials; do not commit them.
+
+`E2E_BASE_URL` can target an already-running test deployment instead of starting the local app. In that case, configure that deployment with the same isolated test Supabase project. The browser suite covers player queue join/leave, concurrent duplicate joins, player denial from facility management, staff match assignment/start/completion, live updates across two browsers, reconnects, and manual refresh.
+
+### Production configuration preparation
+
+In the hosting provider's environment settings, configure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_SITE_URL` for each environment. Use the Supabase publishable key only; this app does not require a service-role key. Configure Supabase Auth's site URL and redirect allowlist for the corresponding deployed domain. Keep production credentials in Vercel's environment settings, never in `.env.example`, source files, browser tests, or commits. The `.env.local` file is ignored by Git.
+
 Start the development server:
 
 ```powershell
@@ -76,6 +88,7 @@ npm run build
 - `lib/matches/` — transactional match actions, history queries, and lifecycle rules
 - `components/matches/` — staff court/match controls and player match history
 - `components/realtime/` — private session subscriptions, connection state, and manual refresh
+- `tests/e2e/` — Playwright critical-journey, responsive, keyboard, and permission checks
 - `lib/supabase/` — typed server, browser, and request-session Supabase SSR clients
 - `supabase/migrations/` — version-controlled database schema and RLS policies
 - `supabase/tests/database/` — pgTAP RLS contract tests

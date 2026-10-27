@@ -34,8 +34,8 @@ export default async function SessionsPage() {
           Open sessions
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-          Browse active sessions, sports, times, and courts. Queue sign-up
-          arrives in a later phase.
+          Browse active sessions, find a game, and follow queue and match
+          updates as they happen.
         </p>
 
         {result.data === null ? (
