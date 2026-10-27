@@ -5,8 +5,10 @@ import { hasEnvVars } from "@/lib/utils";
 import { formatFacilityDateTime } from "@/lib/facilities/datetime";
 import { isUuid } from "@/lib/facilities/validation";
 import { QueuePanel } from "@/components/queue/queue-panel";
+import { SessionMatchHistory } from "@/components/matches/match-history";
 import { canJoinQueue } from "@/lib/queue/rules";
 import { loadSessionQueue } from "@/lib/queue/queries";
+import { loadSessionMatches } from "@/lib/matches/queries";
 import { createClient } from "@/lib/supabase/server";
 import { loadOpenSession } from "@/lib/sessions/queries";
 
@@ -45,10 +47,13 @@ export default async function SessionPage({ params }: SessionPageProps) {
   if (authError) {
     console.error("Could not verify the current user for the session queue.", authError.code);
   }
-  const queueResult =
+  const [queueResult, matchesResult] =
     summary && authData.user
-      ? await loadSessionQueue(supabase, sessionId, authData.user.id)
-      : null;
+      ? await Promise.all([
+          loadSessionQueue(supabase, sessionId, authData.user.id),
+          loadSessionMatches(supabase, sessionId),
+        ])
+      : [null, null];
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8">
@@ -169,6 +174,21 @@ export default async function SessionPage({ params }: SessionPageProps) {
               signedIn={Boolean(authData.user)}
             />
           )}
+          {authData.user && !authError ? (
+            matchesResult?.data === null ? (
+              <p
+                className="mt-8 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100"
+                role="alert"
+              >
+                Match history could not be loaded. Refresh the page to try again.
+              </p>
+            ) : matchesResult ? (
+              <SessionMatchHistory
+                matches={matchesResult.data ?? []}
+                timezone={summary.facility.timezone}
+              />
+            ) : null
+          ) : null}
         </article>
       ) : null}
     </main>

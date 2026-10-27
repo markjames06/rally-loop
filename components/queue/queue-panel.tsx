@@ -14,7 +14,7 @@ import type {
   MyQueueEntry,
   WaitingQueueEntry,
 } from "@/lib/queue/queries";
-import { canWithdrawEntry } from "@/lib/queue/rules";
+import { canRejoinQueue, canWithdrawEntry } from "@/lib/queue/rules";
 
 type QueuePanelProps = {
   sessionId: string;
@@ -124,6 +124,10 @@ export function QueuePanel({
         <p className="mt-5 text-sm text-lime-100" role="status">
           You have been assigned from this queue.
         </p>
+      ) : myEntry?.status === "played" ? (
+        <p className="mt-5 text-sm text-lime-100" role="status">
+          Your match is complete. You can join the queue again when you are ready.
+        </p>
       ) : null}
 
       {!signedIn ? (
@@ -138,8 +142,7 @@ export function QueuePanel({
         </p>
       ) : canJoin &&
         (!myEntry ||
-          myEntry.status === "withdrawn" ||
-          myEntry.status === "skipped") ? (
+          canRejoinQueue(myEntry.status)) ? (
         <form action={joinFormAction} className="mt-5">
           <Button
             className="h-11 rounded-full bg-lime-300 px-5 font-bold text-slate-950 hover:bg-lime-200"

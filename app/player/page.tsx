@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { PlayerMatchHistory } from "@/components/matches/match-history";
 import { requireAuthenticatedUser } from "@/lib/auth/guards";
+import { loadMyMatchHistory } from "@/lib/matches/queries";
 import { isFacilityRole } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
   const [
     { data: profile, error: profileError },
     { data: memberships, error: membershipError },
+    matchHistoryResult,
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -26,6 +29,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
       .from("facility_members")
       .select("facility_id, role")
       .eq("user_id", user.id),
+    loadMyMatchHistory(supabase),
   ]);
 
   if (profileError) {
@@ -87,6 +91,16 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
             again.
           </p>
         ) : null}
+        {matchHistoryResult.data === null ? (
+          <p
+            className="mt-6 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+            role="alert"
+          >
+            We could not load your match history. Refresh the page to try again.
+          </p>
+        ) : (
+          <PlayerMatchHistory matches={matchHistoryResult.data} />
+        )}
         {reason === "forbidden" ? (
           <p
             className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100"

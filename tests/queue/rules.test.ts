@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   canJoinQueue,
+  canRejoinQueue,
   canWithdrawEntry,
   validateSkipReason,
 } from "../../lib/queue/rules";
@@ -20,6 +21,14 @@ describe("queue lifecycle rules", () => {
     expect(canWithdrawEntry("assigned")).toBe(false);
     expect(canWithdrawEntry("withdrawn")).toBe(false);
     expect(canWithdrawEntry("skipped")).toBe(false);
+  });
+
+  it("allows a new entry after a previous entry is terminal", () => {
+    expect(canRejoinQueue("withdrawn")).toBe(true);
+    expect(canRejoinQueue("skipped")).toBe(true);
+    expect(canRejoinQueue("played")).toBe(true);
+    expect(canRejoinQueue("waiting")).toBe(false);
+    expect(canRejoinQueue("assigned")).toBe(false);
   });
 
   it("requires a short, meaningful staff skip reason", () => {

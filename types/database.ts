@@ -12,7 +12,13 @@ export type QueueEntryStatus =
   | "waiting"
   | "assigned"
   | "withdrawn"
-  | "skipped";
+  | "skipped"
+  | "played";
+export type MatchStatus =
+  | "assigned"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
 
 type Table<Row, Insert, Update> = {
   Row: Row;
@@ -221,6 +227,57 @@ export type Database = {
           admin_note?: string | null;
         }
       >;
+      matches: Table<
+        {
+          id: string;
+          session_id: string;
+          court_id: string;
+          status: MatchStatus;
+          assigned_at: string;
+          started_at: string | null;
+          completed_at: string | null;
+          cancelled_at: string | null;
+          created_by: string;
+          notes: string | null;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          session_id: string;
+          court_id: string;
+          status?: MatchStatus;
+          assigned_at?: string;
+          started_at?: string | null;
+          completed_at?: string | null;
+          cancelled_at?: string | null;
+          created_by: string;
+          notes?: string | null;
+          updated_at?: string;
+        },
+        {
+          status?: MatchStatus;
+          started_at?: string | null;
+          completed_at?: string | null;
+          cancelled_at?: string | null;
+          notes?: string | null;
+          updated_at?: string;
+        }
+      >;
+      match_players: Table<
+        {
+          match_id: string;
+          session_id: string;
+          player_id: string;
+          queue_entry_id: string;
+        },
+        {
+          match_id: string;
+          session_id: string;
+          player_id: string;
+          queue_entry_id: string;
+        },
+        never
+      >;
       audit_logs: Table<
         {
           id: string;
@@ -286,6 +343,71 @@ export type Database = {
         };
         Returns: string;
       };
+      assign_next_match: {
+        Args: {
+          _session_id: string;
+          _court_id: string;
+          _notes: string | null;
+        };
+        Returns: string;
+      };
+      start_match: {
+        Args: {
+          _session_id: string;
+          _match_id: string;
+        };
+        Returns: string;
+      };
+      complete_match: {
+        Args: {
+          _session_id: string;
+          _match_id: string;
+          _notes: string | null;
+        };
+        Returns: string;
+      };
+      cancel_match: {
+        Args: {
+          _session_id: string;
+          _match_id: string;
+          _reason: string;
+        };
+        Returns: string;
+      };
+      get_session_matches: {
+        Args: {
+          _session_id: string;
+        };
+        Returns: {
+          match_id: string;
+          court_id: string;
+          court_name: string;
+          status: MatchStatus;
+          assigned_at: string;
+          started_at: string | null;
+          completed_at: string | null;
+          cancelled_at: string | null;
+          notes: string | null;
+          player_names: string[];
+        }[];
+      };
+      get_my_match_history: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          match_id: string;
+          session_id: string;
+          session_name: string;
+          facility_name: string;
+          facility_timezone: string;
+          court_name: string;
+          status: MatchStatus;
+          assigned_at: string;
+          started_at: string | null;
+          completed_at: string | null;
+          cancelled_at: string | null;
+          player_names: string[];
+        }[];
+      };
     };
     Enums: {
       facility_role: FacilityRole;
@@ -293,6 +415,7 @@ export type Database = {
       session_status: SessionStatus;
       queue_policy: QueuePolicy;
       queue_entry_status: QueueEntryStatus;
+      match_status: MatchStatus;
     };
     CompositeTypes: Record<string, never>;
   };

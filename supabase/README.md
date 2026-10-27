@@ -2,7 +2,7 @@
 
 ## Apply the migrations
 
-Apply migrations in filename order using the Supabase SQL Editor or the Supabase CLI.
+Apply migrations in filename order using the Supabase SQL Editor or the Supabase CLI. Apply the Phase 4 queue status migration before the match lifecycle migration because PostgreSQL does not permit a newly added enum value to be used until its migration commits. Then apply the match `updated_at` migration.
 
 The Phase 1 migration creates:
 
@@ -62,10 +62,18 @@ Apply [`migrations/20261029000000_phase3_queue_engine.sql`](./migrations/2026102
 
 Players can join or leave their own waiting entry. Facility staff can skip a waiting entry with a required reason; the status update and audit log are written atomically. Queue reads expose waiting players' display names and positions, never emails. Direct client inserts, updates, and deletes of queue entries and audit logs are revoked.
 
-Phase 3 does not assign players to matches. The queue status reserves `assigned` for the later match lifecycle, but the match schema and active-match eligibility checks arrive in Phase 4; do not treat queue join as match assignment.
+## Phase 4 court and match lifecycle
+
+Apply [`migrations/20261030000000_phase4_queue_played_status.sql`](./migrations/20261030000000_phase4_queue_played_status.sql), then [`migrations/20261030000100_phase4_match_lifecycle.sql`](./migrations/20261030000100_phase4_match_lifecycle.sql), then [`migrations/20261030000200_match_updated_at.sql`](./migrations/20261030000200_match_updated_at.sql). The first migration adds the terminal `played` queue state; keep it separate so PostgreSQL commits the enum change before later functions use it. The final migration adds the column used by the match update timestamp trigger.
+
+Staff/admin RPCs assign the next eligible FIFO group to an available court, start matches, complete in-progress matches, and cancel active matches. Each operation is a single database transaction. Assignment creates the match and player links, marks queue entries `assigned`, reserves the court, and records an audit event. Completion marks entries `played` and releases the court. Cancellation requires a reason, restores entries to `waiting` without changing their original FIFO timestamps, releases the court, and records an audit event.
+
+A partial unique index prevents simultaneous active matches on one court. Assignment serializes on the session, locks selected queue/profile rows, checks for active matches across sessions, and is the only client-granted path for creating matches. Queue joins also lock the player profile and reject players who already have an assigned or in-progress match. Direct client access to match and match-player tables is revoked; authenticated history functions return display names only, and staff notes are hidden from players. Database triggers prevent manual court release and incompatible session/court edits while matches are active.
+
+The management page contains court assignment, match controls, and recent history. Players can see open-session match status and their personal match history from the player page.
 
 ## Validate row-level security
 
-Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql), [`tests/database/phase2_facilities_sessions.test.sql`](./tests/database/phase2_facilities_sessions.test.sql), and [`tests/database/phase3_queue.test.sql`](./tests/database/phase3_queue.test.sql) against the migrated Supabase database with pgTAP available. Each test rolls back its transaction and checks the relevant RLS, grants, and database contracts.
+Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql), [`tests/database/phase2_facilities_sessions.test.sql`](./tests/database/phase2_facilities_sessions.test.sql), [`tests/database/phase3_queue.test.sql`](./tests/database/phase3_queue.test.sql), and [`tests/database/phase4_matches.test.sql`](./tests/database/phase4_matches.test.sql) against the migrated Supabase database with pgTAP available. Each test rolls back its transaction and checks the relevant RLS, grants, and database contracts.
 
-The TypeScript auth, facility, and queue rules tests run with `npm test`.
+The TypeScript auth, facility, queue, and match rules tests run with `npm test`.

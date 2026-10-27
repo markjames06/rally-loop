@@ -15,3 +15,11 @@ export function validateSkipReason(reason: string): string | null {
 export function canWithdrawEntry(status: QueueEntryStatus): boolean {
   return status === "waiting";
 }
+
+export function canRejoinQueue(status: QueueEntryStatus): boolean {
+  return (
+    status === "withdrawn" ||
+    status === "skipped" ||
+    status === "played"
+  );
+}

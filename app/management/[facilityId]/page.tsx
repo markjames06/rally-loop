@@ -6,6 +6,7 @@ import { FacilitySetup } from "@/components/facilities/facility-setup";
 import { requireFacilityRole } from "@/lib/auth/guards";
 import { toLocalDateTimeInput } from "@/lib/facilities/datetime";
 import { isValidTimezone } from "@/lib/facilities/validation";
+import { loadSessionMatches } from "@/lib/matches/queries";
 import { loadSessionQueue } from "@/lib/queue/queries";
 import { createClient } from "@/lib/supabase/server";
 
@@ -89,16 +90,29 @@ export default async function ManagementPage({
   const queueResults =
     role === "admin" || role === "staff"
       ? await Promise.all(
-          (sessions ?? []).map(async (session) => ({
-            sessionId: session.id,
-            result: await loadSessionQueue(supabase, session.id, user.id),
-          })),
+          (sessions ?? []).map(async (session) => {
+            const [queueResult, matchesResult] = await Promise.all([
+              loadSessionQueue(supabase, session.id, user.id),
+              loadSessionMatches(supabase, session.id),
+            ]);
+            return {
+              sessionId: session.id,
+              queueResult,
+              matchesResult,
+            };
+          }),
         )
       : [];
   const queuesBySessionId = new Map(
-    queueResults.map(({ sessionId, result }) => [
+    queueResults.map(({ sessionId, queueResult }) => [
       sessionId,
-      result.data?.entries ?? null,
+      queueResult.data?.entries ?? null,
+    ]),
+  );
+  const matchesBySessionId = new Map(
+    queueResults.map(({ sessionId, matchesResult }) => [
+      sessionId,
+      matchesResult.data,
     ]),
   );
   const timezoneValid = facility
@@ -158,7 +172,8 @@ export default async function ManagementPage({
               courtIds: (sessionCourts ?? [])
                 .filter((link) => link.session_id === session.id)
                 .map((link) => link.court_id),
-                queueEntries: queuesBySessionId.get(session.id) ?? null,
+              queueEntries: queuesBySessionId.get(session.id) ?? null,
+              matches: matchesBySessionId.get(session.id) ?? null,
             }))}
             sports={sports ?? []}
             timezoneValid={timezoneValid}

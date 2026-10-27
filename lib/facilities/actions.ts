@@ -145,7 +145,11 @@ export async function saveCourtAction(
     console.error("Could not save court settings.", result.error.code);
     return {
       error:
-        result.error.code === "23505"
+        result.error.message.includes("active match")
+          ? "This court is reserved by an active match. Finish or cancel the match first."
+          : result.error.message.includes("matches_court_id_fkey")
+            ? "This court has match history and cannot be deleted."
+          : result.error.code === "23505"
           ? "A court with that name already exists at this facility."
           : result.error.code === "23503"
             ? "Remove this court from its sessions before changing its sport."
@@ -261,7 +265,9 @@ export async function saveSessionAction(
     console.error("Could not save session.", error.code);
     return {
       error:
-        error.code === "23505"
+        error.message.includes("active match")
+          ? "Finish or cancel active matches before changing this session's courts or setup."
+          : error.code === "23505"
           ? "A session with those details already exists."
           : "Session could not be saved. Check its sport, times, status, and courts.",
     };

@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MatchManager } from "@/components/matches/match-manager";
 import { StaffQueueManager } from "@/components/queue/queue-panel";
 import {
   deleteCourtAction,
@@ -19,6 +20,7 @@ import {
 } from "@/lib/facilities/datetime";
 import type { Database } from "@/types/database";
 import type { WaitingQueueEntry } from "@/lib/queue/queries";
+import type { SessionMatchRecord } from "@/lib/matches/queries";
 
 type FacilityRow = Pick<
   Database["public"]["Tables"]["facilities"]["Row"],
@@ -49,6 +51,7 @@ type SessionWithCourts = {
   session: SessionRow;
   courtIds: string[];
   queueEntries: WaitingQueueEntry[] | null;
+  matches: SessionMatchRecord[] | null;
 };
 
 const initialState: FacilityActionState = {};
@@ -559,6 +562,27 @@ export function FacilitySetup({
                     entries={item.queueEntries}
                     facilityId={facility.id}
                     sessionId={item.session.id}
+                  />
+                )}
+                {item.matches === null ? (
+                  <p className="mt-4 text-sm text-rose-200" role="alert">
+                    This session&apos;s matches could not be loaded.
+                  </p>
+                ) : (
+                  <MatchManager
+                    courts={courts
+                      .filter((court) => item.courtIds.includes(court.id))
+                      .map((court) => ({
+                        id: court.id,
+                        name: court.name,
+                        status: court.status,
+                      }))}
+                    facilityId={facility.id}
+                    matches={item.matches}
+                    playersPerMatch={item.session.players_per_match}
+                    sessionId={item.session.id}
+                    sessionStatus={item.session.status}
+                    timezone={facility.timezone}
                   />
                 )}
               </article>

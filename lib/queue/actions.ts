@@ -29,6 +29,9 @@ function queueErrorMessage(
   if (code === "42501") {
     return "You are not authorized to perform this queue action.";
   }
+  if (message.includes("active match")) {
+    return "Finish your active match before joining another queue.";
+  }
   if (message.includes("not open for queue joins")) {
     return "This session is not open for queue joins.";
   }

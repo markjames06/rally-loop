@@ -40,7 +40,9 @@
     ".next-phase1-validation-2/types/**/*.ts",
     ".next-phase1-validation-2/dev/types/**/*.ts",
     ".next-phase3-validation/types/**/*.ts",
-    ".next-phase3-validation/dev/types/**/*.ts"
+    ".next-phase3-validation/dev/types/**/*.ts",
+    ".next-phase4-validation/types/**/*.ts",
+    ".next-phase4-validation/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
