@@ -4,7 +4,7 @@
 
 - Read `RALLYLOOP_IMPLEMENTATION_PLAN.md` before planning or implementing product work. It is the product baseline.
 - Work phase by phase and feature by feature. Implement only the task the user approved; do not build multiple phases or the whole app at once.
-- The current codebase is the Phase 0 foundation. Do not add authentication flows, dashboards, database schema, queue operations, or match functionality unless a later task explicitly requests them.
+- The current codebase is progressing through the approved phases. The approved Phase 1 scope includes Supabase authentication, profiles, protected player routes, facility-scoped staff/admin checks, and RLS. Do not add dashboards, facility setup, queue operations, or match functionality until those phases are approved.
 - Do not add another backend, database, framework, or service without the user's approval.
 - Preserve existing files and working behavior. Inspect the relevant code and instructions before editing; do not overwrite or remove user content.
 
@@ -13,6 +13,7 @@
 - Use the existing Next.js App Router, React, TypeScript, Tailwind CSS, shadcn/ui, and Supabase setup. Prefer existing patterns and minimal dependencies.
 - Keep TypeScript strict. Avoid `any`, unsafe casts, silent fallbacks, and broad error catches.
 - Enforce authorization in trusted server-side code and Supabase RLS, not only in the UI. Never trust a client-supplied identity or role.
+- Facility roles are granted only through trusted administrative provisioning. Never add a user-facing path that lets an account assign or change its own `facility_members.role`.
 - Keep service-role keys server-only. Commit placeholders in `.env.example`, never real secrets.
 - Critical queue and match operations must use trusted transactional database/server-side operations when those phases are approved.
 - Add or update focused tests for behavior changes. Preserve accessible labels, keyboard support, responsive behavior, and clear loading/error states.

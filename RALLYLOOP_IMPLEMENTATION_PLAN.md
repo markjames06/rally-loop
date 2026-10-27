@@ -1093,7 +1093,8 @@ Create `.env.example` with placeholders only:
 
 ``` env
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 Use the exact environment variable names expected by the selected

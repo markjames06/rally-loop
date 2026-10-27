@@ -52,15 +52,23 @@ export default function Home() {
           </a>
         </nav>
 
-        <Button
-          asChild
-          className="h-10 rounded-full bg-lime-300 px-5 font-bold text-slate-950 hover:bg-lime-200"
-        >
-          <a href="#how-it-works">
-            Discover RallyLoop
-            <ArrowUpRight aria-hidden="true" />
-          </a>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Link
+            className="hidden text-sm font-semibold text-slate-300 transition hover:text-white sm:inline"
+            href="/login"
+          >
+            Sign in
+          </Link>
+          <Button
+            asChild
+            className="h-10 rounded-full bg-lime-300 px-5 font-bold text-slate-950 hover:bg-lime-200"
+          >
+            <Link href="/signup">
+              Get started
+              <ArrowUpRight aria-hidden="true" />
+            </Link>
+          </Button>
+        </div>
       </header>
 
       <section className="relative isolate overflow-hidden">
@@ -91,12 +99,12 @@ export default function Home() {
                   <ArrowUpRight aria-hidden="true" />
                 </a>
               </Button>
-              <a
+              <Link
                 className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 px-6 text-sm font-semibold text-white transition hover:border-white/35 hover:bg-white/5"
-                href="#built-for-play"
+                href="/login"
               >
-                Made for your club
-              </a>
+                I already have an account
+              </Link>
             </div>
             <p className="mt-5 text-xs font-medium tracking-wide text-slate-500">
               PICKLEBALL <span className="px-2 text-lime-300">/</span> BADMINTON{" "}
