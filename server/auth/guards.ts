@@ -1,9 +1,9 @@
 import type { User } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 
-import type { FacilityRole } from "@/lib/auth/roles";
-import { createClient } from "@/lib/supabase/server";
-import { hasEnvVars } from "@/lib/utils";
+import type { FacilityRole } from "@/shared/auth/roles";
+import { createClient } from "@/server/supabase/server";
+import { hasEnvVars } from "@/shared/lib/utils";
 
 export async function requireAuthenticatedUser(nextPath = "/player") {
   if (!hasEnvVars) {

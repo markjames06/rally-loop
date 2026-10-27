@@ -1,7 +1,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-import { hasEnvVars } from "@/lib/utils";
-import type { Database } from "@/types/database";
+import { hasEnvVars } from "@/shared/lib/utils";
+import type { Database } from "@/shared/types/database";
 
 export function createClient() {
   if (!hasEnvVars) {

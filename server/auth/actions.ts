@@ -6,9 +6,9 @@ import {
   isAllowedRedirectPath,
   validateCredentials,
   validateDisplayName,
-} from "@/lib/auth/roles";
-import { createClient } from "@/lib/supabase/server";
-import { hasEnvVars } from "@/lib/utils";
+} from "@/shared/auth/roles";
+import { createClient } from "@/server/supabase/server";
+import { hasEnvVars } from "@/shared/lib/utils";
 
 export type AuthActionState = {
   error?: string;

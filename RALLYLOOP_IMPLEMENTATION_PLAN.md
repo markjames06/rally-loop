@@ -516,66 +516,56 @@ replace the model.
 
 ## 8. Application structure
 
-Use feature-based organization so Copilot can work on one area without
-changing the entire application.
+Keep routes, interface code, trusted backend logic, shared code, and
+database assets in clearly named top-level folders. Group domain logic
+inside each layer so a change can be followed by feature.
 
 ``` text
 rallyloop/
 ├── .github/
 │   └── copilot-instructions.md
-├── docs/
-│   ├── RALLYLOOP_IMPLEMENTATION_PLAN.md
-│   ├── PROJECT.md
-│   ├── FEATURES.md
-│   ├── DATABASE.md
-│   └── DECISIONS.md
-├── public/
-├── src/
-│   ├── app/
-│   │   ├── (public)/
-│   │   ├── (auth)/
-│   │   ├── (player)/
-│   │   └── (management)/
-│   ├── components/
-│   │   ├── ui/
-│   │   └── shared/
-│   ├── features/
-│   │   ├── auth/
-│   │   ├── profile/
-│   │   ├── facilities/
-│   │   ├── sports/
-│   │   ├── courts/
-│   │   ├── sessions/
-│   │   ├── queue/
-│   │   └── matches/
-│   ├── lib/
-│   │   ├── supabase/
-│   │   ├── auth/
-│   │   └── utils/
-│   └── types/
+├── app/                         # Next.js routes, layouts, and route handlers
+├── components/                  # Reusable UI, grouped by domain
+│   ├── auth/
+│   ├── facilities/
+│   ├── matches/
+│   ├── queue/
+│   ├── realtime/
+│   ├── sessions/
+│   └── ui/
+├── server/                      # Trusted server-only application code
+│   ├── auth/                    # Actions and route guards
+│   ├── facilities/              # Facility actions
+│   ├── matches/                 # Match actions and queries
+│   ├── queue/                   # Queue actions and queries
+│   ├── sessions/                # Session queries
+│   └── supabase/                # Server and request-scoped clients
+├── shared/                      # Browser-safe code used across layers
+│   ├── auth/
+│   ├── facilities/              # Validation and date/time helpers
+│   ├── matches/                 # Match rules
+│   ├── queue/                   # Queue rules
+│   ├── lib/                     # Shared utilities
+│   ├── supabase/                # Browser client
+│   └── types/                   # Shared database types
 ├── supabase/
-│   └── migrations/
+│   ├── migrations/
+│   └── tests/database/
 ├── tests/
+│   ├── auth/
+│   ├── facilities/
+│   ├── matches/
+│   ├── queue/
 │   ├── e2e/
-│   └── fixtures/
-├── .env.example
-├── AGENTS.md
-├── README.md
+├── proxy.ts
 └── package.json
 ```
 
-This is a suggested structure, not a reason to create empty folders.
-Create folders when the relevant feature is implemented.
-
-Use:
-
--   `src/app` for routes, layouts, and page composition.
--   `src/features/<feature>` for feature-specific components, schemas,
-    and application logic.
--   `src/components/ui` for generated shadcn/ui components.
--   `src/lib` for shared integrations and utilities.
--   `supabase/migrations` for version-controlled SQL changes.
--   `tests/e2e` for user journeys.
+Keep Next.js App Router files in `app/`. Place trusted server actions,
+queries, guards, and server-side Supabase clients in `server/`; do not
+import server-only modules into browser components. Keep browser-safe
+rules, validation, types, and utilities in `shared/`. Store database
+changes and database contract tests under `supabase/`.
 
 Do not create a generic abstraction until at least two real use cases
 need it.

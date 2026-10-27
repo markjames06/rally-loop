@@ -7,7 +7,7 @@ import {
   validateFacilitySettings,
   validateSessionInput,
   type SessionInput,
-} from "../../lib/facilities/validation";
+} from "../../shared/facilities/validation";
 
 const sportId = "8f8c7d10-3d57-4f4e-9af7-6aa49942e6a1";
 const courtId = "d1f4b280-7d54-4bfc-8b10-a785f90d1849";

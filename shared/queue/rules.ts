@@ -1,4 +1,4 @@
-import type { QueueEntryStatus, SessionStatus } from "@/types/database";
+import type { QueueEntryStatus, SessionStatus } from "@/shared/types/database";
 
 export function canJoinQueue(status: SessionStatus): boolean {
   return status === "open";

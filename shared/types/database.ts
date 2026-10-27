@@ -1,4 +1,4 @@
-import type { FacilityRole } from "@/lib/auth/roles";
+import type { FacilityRole } from "@/shared/auth/roles";
 
 export type CourtStatus = "available" | "occupied" | "inactive";
 export type SessionStatus =

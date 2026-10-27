@@ -2,7 +2,7 @@ import type {
   CourtStatus,
   MatchStatus,
   SessionStatus,
-} from "@/types/database";
+} from "@/shared/types/database";
 
 export function canAssignMatch(
   sessionStatus: SessionStatus,

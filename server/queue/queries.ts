@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/types/database";
+import { createClient } from "@/server/supabase/server";
+import type { Database } from "@/shared/types/database";
 
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
 type QueueEntryRow = Database["public"]["Tables"]["queue_entries"]["Row"];

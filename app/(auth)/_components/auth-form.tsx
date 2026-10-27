@@ -7,7 +7,7 @@ import {
   signInAction,
   signUpAction,
   type AuthActionState,
-} from "@/lib/auth/actions";
+} from "@/server/auth/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

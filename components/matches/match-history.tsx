@@ -1,7 +1,7 @@
 import type {
   PlayerMatchRecord,
   SessionMatchRecord,
-} from "@/lib/matches/queries";
+} from "@/server/matches/queries";
 
 function formatMatchDate(value: string | null, timezone: string): string {
   if (!value) {

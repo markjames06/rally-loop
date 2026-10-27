@@ -79,20 +79,13 @@ npm run build
 
 ## Project map
 
-- `app/` — App Router landing page, auth pages/callback, player and facility management routes, plus open session discovery
-- `components/ui/` — initialized shadcn/ui components
-- `lib/auth/` — auth actions, role/redirect validation, and server-side route guards
-- `lib/facilities/` — facility, court, and session input validation/actions
-- `lib/sessions/` — public session discovery queries
-- `lib/queue/` — queue RPC actions, server queries, and validation rules
-- `lib/matches/` — transactional match actions, history queries, and lifecycle rules
-- `components/matches/` — staff court/match controls and player match history
-- `components/realtime/` — private session subscriptions, connection state, and manual refresh
-- `tests/e2e/` — Playwright critical-journey, responsive, keyboard, and permission checks
-- `lib/supabase/` — typed server, browser, and request-session Supabase SSR clients
-- `supabase/migrations/` — version-controlled database schema and RLS policies
-- `supabase/tests/database/` — pgTAP RLS contract tests
-- `tests/` — isolated auth, facility, queue, and match validation tests
+- `app/` — Next.js App Router pages, layouts, route handlers, and global styles
+- `components/` — reusable interface components; `components/ui/` contains shadcn/ui primitives
+- `server/` — trusted backend code, grouped by domain: server actions, data queries, route guards, and server-side Supabase clients
+- `shared/` — browser-safe domain validation/rules, shared utilities and types, and the browser Supabase client
+- `supabase/migrations/` — version-controlled PostgreSQL schema, functions, and RLS policies
+- `supabase/tests/database/` — pgTAP database and RLS contract tests
+- `tests/` — unit and Playwright end-to-end tests, grouped by domain
 - `AGENTS.md` — repository-wide development rules
 - `.github/copilot-instructions.md` — Copilot-specific entry point to those rules
 

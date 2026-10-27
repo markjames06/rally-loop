@@ -9,16 +9,16 @@ import {
   completeMatchAction,
   startMatchAction,
   type MatchActionState,
-} from "@/lib/matches/actions";
+} from "@/server/matches/actions";
 import type {
   SessionMatchRecord,
-} from "@/lib/matches/queries";
-import { canStartMatch } from "@/lib/matches/rules";
+} from "@/server/matches/queries";
+import { canStartMatch } from "@/shared/matches/rules";
 import type {
   CourtStatus,
   MatchStatus,
   SessionStatus,
-} from "@/types/database";
+} from "@/shared/types/database";
 
 type MatchCourt = {
   id: string;

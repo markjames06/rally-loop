@@ -1,8 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-import { hasEnvVars } from "@/lib/utils";
-import type { Database } from "@/types/database";
+import { hasEnvVars } from "@/shared/lib/utils";
+import type { Database } from "@/shared/types/database";
 
 /**
  * Especially important if using Fluid compute: Don't put this client in a

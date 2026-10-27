@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 import {
   isPublishableSupabaseKey,
   isValidSupabaseProjectUrl,
-} from "@/lib/auth/roles";
+} from "@/shared/auth/roles";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

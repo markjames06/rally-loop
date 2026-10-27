@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireAuthenticatedUser, requireFacilityRole } from "@/lib/auth/guards";
-import { isUuid } from "@/lib/facilities/validation";
-import { validateSkipReason } from "@/lib/queue/rules";
-import { createClient } from "@/lib/supabase/server";
+import { requireAuthenticatedUser, requireFacilityRole } from "@/server/auth/guards";
+import { isUuid } from "@/shared/facilities/validation";
+import { validateSkipReason } from "@/shared/queue/rules";
+import { createClient } from "@/server/supabase/server";
 
 export type QueueActionState = {
   error?: string;

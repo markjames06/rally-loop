@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { AuthForm } from "../_components/auth-form";
 import { getAuthMessage } from "../_components/auth-message";
-import { isAllowedRedirectPath } from "@/lib/auth/roles";
+import { isAllowedRedirectPath } from "@/shared/auth/roles";
 
 export const metadata: Metadata = {
   title: "Sign in | RallyLoop",

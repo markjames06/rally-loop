@@ -1,9 +1,9 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { isAllowedRedirectPath } from "@/lib/auth/roles";
-import { createClient } from "@/lib/supabase/server";
-import { hasEnvVars } from "@/lib/utils";
+import { isAllowedRedirectPath } from "@/shared/auth/roles";
+import { createClient } from "@/server/supabase/server";
+import { hasEnvVars } from "@/shared/lib/utils";
 
 function isSupportedOtpType(value: string | null): value is EmailOtpType {
   return value === "signup" || value === "email";

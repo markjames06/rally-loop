@@ -3,9 +3,9 @@ import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PlayerMatchHistory } from "@/components/matches/match-history";
 import { SessionRealtime } from "@/components/realtime/session-realtime";
-import { requireAuthenticatedUser } from "@/lib/auth/guards";
-import { loadMyMatchHistory } from "@/lib/matches/queries";
-import { isFacilityRole } from "@/lib/auth/roles";
+import { requireAuthenticatedUser } from "@/server/auth/guards";
+import { loadMyMatchHistory } from "@/server/matches/queries";
+import { isFacilityRole } from "@/shared/auth/roles";
 
 export const dynamic = "force-dynamic";
 

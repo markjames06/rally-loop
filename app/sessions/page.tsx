@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 import { SessionCard } from "@/components/sessions/session-card";
-import { hasEnvVars } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/server";
-import { loadOpenSessions } from "@/lib/sessions/queries";
+import { hasEnvVars } from "@/shared/lib/utils";
+import { createClient } from "@/server/supabase/server";
+import { loadOpenSessions } from "@/server/sessions/queries";
 
 export const dynamic = "force-dynamic";
 

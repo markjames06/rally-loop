@@ -4,12 +4,12 @@ import { notFound } from "next/navigation";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { FacilitySetup } from "@/components/facilities/facility-setup";
 import { SessionRealtime } from "@/components/realtime/session-realtime";
-import { requireFacilityRole } from "@/lib/auth/guards";
-import { toLocalDateTimeInput } from "@/lib/facilities/datetime";
-import { isValidTimezone } from "@/lib/facilities/validation";
-import { loadSessionMatches } from "@/lib/matches/queries";
-import { loadSessionQueue } from "@/lib/queue/queries";
-import { createClient } from "@/lib/supabase/server";
+import { requireFacilityRole } from "@/server/auth/guards";
+import { toLocalDateTimeInput } from "@/shared/facilities/datetime";
+import { isValidTimezone } from "@/shared/facilities/validation";
+import { loadSessionMatches } from "@/server/matches/queries";
+import { loadSessionQueue } from "@/server/queue/queries";
+import { createClient } from "@/server/supabase/server";
 
 export const dynamic = "force-dynamic";
 

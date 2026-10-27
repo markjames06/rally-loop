@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { hasEnvVars } from "@/lib/utils";
-import { formatFacilityDateTime } from "@/lib/facilities/datetime";
-import { isUuid } from "@/lib/facilities/validation";
+import { hasEnvVars } from "@/shared/lib/utils";
+import { formatFacilityDateTime } from "@/shared/facilities/datetime";
+import { isUuid } from "@/shared/facilities/validation";
 import { QueuePanel } from "@/components/queue/queue-panel";
 import { SessionMatchHistory } from "@/components/matches/match-history";
 import { SessionRealtime } from "@/components/realtime/session-realtime";
-import { canJoinQueue } from "@/lib/queue/rules";
-import { loadSessionQueue } from "@/lib/queue/queries";
-import { loadSessionMatches } from "@/lib/matches/queries";
-import { createClient } from "@/lib/supabase/server";
-import { loadOpenSession } from "@/lib/sessions/queries";
+import { canJoinQueue } from "@/shared/queue/rules";
+import { loadSessionQueue } from "@/server/queue/queries";
+import { loadSessionMatches } from "@/server/matches/queries";
+import { createClient } from "@/server/supabase/server";
+import { loadOpenSession } from "@/server/sessions/queries";
 
 export const dynamic = "force-dynamic";
 

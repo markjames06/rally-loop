@@ -5,7 +5,7 @@ import {
   canRejoinQueue,
   canWithdrawEntry,
   validateSkipReason,
-} from "../../lib/queue/rules";
+} from "../../shared/queue/rules";
 
 describe("queue lifecycle rules", () => {
   it("only allows joining an open session", () => {

@@ -2,13 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireFacilityRole } from "@/lib/auth/guards";
-import { isUuid } from "@/lib/facilities/validation";
+import { requireFacilityRole } from "@/server/auth/guards";
+import { isUuid } from "@/shared/facilities/validation";
 import {
   validateCancellationReason,
   validateMatchNotes,
-} from "@/lib/matches/rules";
-import { createClient } from "@/lib/supabase/server";
+} from "@/shared/matches/rules";
+import { createClient } from "@/server/supabase/server";
 
 export type MatchActionState = {
   error?: string;

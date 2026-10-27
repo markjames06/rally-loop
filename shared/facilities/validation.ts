@@ -1,4 +1,4 @@
-import type { CourtStatus, SessionStatus } from "@/types/database";
+import type { CourtStatus, SessionStatus } from "@/shared/types/database";
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

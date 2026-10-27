@@ -13,14 +13,14 @@ import {
   saveSessionAction,
   updateFacilityAction,
   type FacilityActionState,
-} from "@/lib/facilities/actions";
+} from "@/server/facilities/actions";
 import {
   formatFacilityDateTime,
   toLocalDateTimeInput,
-} from "@/lib/facilities/datetime";
-import type { Database } from "@/types/database";
-import type { WaitingQueueEntry } from "@/lib/queue/queries";
-import type { SessionMatchRecord } from "@/lib/matches/queries";
+} from "@/shared/facilities/datetime";
+import type { Database } from "@/shared/types/database";
+import type { WaitingQueueEntry } from "@/server/queue/queries";
+import type { SessionMatchRecord } from "@/server/matches/queries";
 
 type FacilityRow = Pick<
   Database["public"]["Tables"]["facilities"]["Row"],

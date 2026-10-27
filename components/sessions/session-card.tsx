@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { formatFacilityDateTime } from "@/lib/facilities/datetime";
-import type { SessionSummary } from "@/lib/sessions/queries";
+import { formatFacilityDateTime } from "@/shared/facilities/datetime";
+import type { SessionSummary } from "@/server/sessions/queries";
 
 export function SessionCard({ summary }: { summary: SessionSummary }) {
   const { session, facility, sport, courts } = summary;

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireFacilityRole } from "@/lib/auth/guards";
+import { requireFacilityRole } from "@/server/auth/guards";
 import {
   isCourtStatus,
   isSessionStatus,
@@ -10,8 +10,8 @@ import {
   validateCourtInput,
   validateFacilitySettings,
   validateSessionInput,
-} from "@/lib/facilities/validation";
-import { createClient } from "@/lib/supabase/server";
+} from "@/shared/facilities/validation";
+import { createClient } from "@/server/supabase/server";
 
 export type FacilityActionState = {
   error?: string;

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatFacilityDateTime,
   toLocalDateTimeInput,
-} from "../../lib/facilities/datetime";
+} from "../../shared/facilities/datetime";
 
 describe("facility timezone display", () => {
   it("formats stored UTC timestamps as facility-local date-time input", () => {

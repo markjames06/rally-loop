@@ -9,12 +9,12 @@ import {
   leaveQueueAction,
   skipQueueEntryAction,
   type QueueActionState,
-} from "@/lib/queue/actions";
+} from "@/server/queue/actions";
 import type {
   MyQueueEntry,
   WaitingQueueEntry,
-} from "@/lib/queue/queries";
-import { canRejoinQueue, canWithdrawEntry } from "@/lib/queue/rules";
+} from "@/server/queue/queries";
+import { canRejoinQueue, canWithdrawEntry } from "@/shared/queue/rules";
 
 type QueuePanelProps = {
   sessionId: string;

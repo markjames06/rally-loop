@@ -7,7 +7,7 @@ import {
   canStartMatch,
   validateCancellationReason,
   validateMatchNotes,
-} from "../../lib/matches/rules";
+} from "../../shared/matches/rules";
 
 describe("match lifecycle rules", () => {
   it("only assigns a match to an available court in an open session", () => {

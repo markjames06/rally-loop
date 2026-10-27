@@ -8,7 +8,7 @@ import {
   isValidSupabaseProjectUrl,
   validateCredentials,
   validateDisplayName,
-} from "../../lib/auth/roles";
+} from "../../shared/auth/roles";
 
 describe("facility roles", () => {
   it("recognizes only the database-supported staff roles", () => {
