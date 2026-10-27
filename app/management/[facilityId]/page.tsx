@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { FacilitySetup } from "@/components/facilities/facility-setup";
+import { SessionRealtime } from "@/components/realtime/session-realtime";
 import { requireFacilityRole } from "@/lib/auth/guards";
 import { toLocalDateTimeInput } from "@/lib/facilities/datetime";
 import { isValidTimezone } from "@/lib/facilities/validation";
@@ -127,6 +128,14 @@ export default async function ManagementPage({
         </Link>
         <SignOutButton />
       </header>
+
+      <div className="mt-6">
+        <SessionRealtime
+          sessionIds={(sessions ?? [])
+            .filter((session) => session.status === "open")
+            .map((session) => session.id)}
+        />
+      </div>
 
       <section className="py-10">
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">

@@ -72,8 +72,16 @@ A partial unique index prevents simultaneous active matches on one court. Assign
 
 The management page contains court assignment, match controls, and recent history. Players can see open-session match status and their personal match history from the player page.
 
+## Phase 5 session-scoped Realtime
+
+Apply [`migrations/20261031000000_phase5_realtime_broadcasts.sql`](./migrations/20261031000000_phase5_realtime_broadcasts.sql) after all Phase 1–4 migrations. It adds database triggers for queue, court, session-court link, session, and match changes. Triggers publish only the affected session topic and table/operation metadata through Supabase Broadcast; they never publish row data. A private `realtime.messages` select policy allows signed-in users to join open-session topics and limits non-open session topics to facility staff/admin. The migration does not grant direct access to matches or match players.
+
+The browser subscribes to the session topics visible on the session, management, and player-history screens. An event or a successful (re)connection refreshes the route; the page then reloads authoritative data through the existing server queries and protected RPCs. Duplicate events are coalesced into a single refresh. A manual Refresh button remains available, and a connection indicator warns when displayed data may be stale. Anonymous visitors can still browse public session details, but must sign in to receive live updates.
+
+For a two-client check, sign in from two separate browser sessions and open the same open-session page in both. Join or leave the queue in one and verify the other reloads the waiting order and current user's position. Then use a staff account in a separate window to assign, start, complete, and cancel a match; verify the session page, management view, and affected player's history update. Briefly disconnect and reconnect one browser and verify it reloads current database state; use Refresh while disconnected to confirm the manual fallback.
+
 ## Validate row-level security
 
-Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql), [`tests/database/phase2_facilities_sessions.test.sql`](./tests/database/phase2_facilities_sessions.test.sql), [`tests/database/phase3_queue.test.sql`](./tests/database/phase3_queue.test.sql), and [`tests/database/phase4_matches.test.sql`](./tests/database/phase4_matches.test.sql) against the migrated Supabase database with pgTAP available. Each test rolls back its transaction and checks the relevant RLS, grants, and database contracts.
+Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql), [`tests/database/phase2_facilities_sessions.test.sql`](./tests/database/phase2_facilities_sessions.test.sql), [`tests/database/phase3_queue.test.sql`](./tests/database/phase3_queue.test.sql), [`tests/database/phase4_matches.test.sql`](./tests/database/phase4_matches.test.sql), and [`tests/database/phase5_realtime.test.sql`](./tests/database/phase5_realtime.test.sql) against the migrated Supabase database with pgTAP available. Each test rolls back its transaction and checks the relevant RLS, grants, and database contracts.
 
 The TypeScript auth, facility, queue, and match rules tests run with `npm test`.

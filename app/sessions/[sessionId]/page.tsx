@@ -6,6 +6,7 @@ import { formatFacilityDateTime } from "@/lib/facilities/datetime";
 import { isUuid } from "@/lib/facilities/validation";
 import { QueuePanel } from "@/components/queue/queue-panel";
 import { SessionMatchHistory } from "@/components/matches/match-history";
+import { SessionRealtime } from "@/components/realtime/session-realtime";
 import { canJoinQueue } from "@/lib/queue/rules";
 import { loadSessionQueue } from "@/lib/queue/queries";
 import { loadSessionMatches } from "@/lib/matches/queries";
@@ -58,6 +59,11 @@ export default async function SessionPage({ params }: SessionPageProps) {
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8">
       <PageHeader />
+      <div className="mt-6">
+        <SessionRealtime
+          sessionIds={authData.user && !authError ? [sessionId] : []}
+        />
+      </div>
       {result.data === null ? (
         <p
           className="mt-10 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-5 text-sm text-rose-100"

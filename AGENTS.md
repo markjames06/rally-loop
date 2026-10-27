@@ -4,7 +4,7 @@
 
 - Read `RALLYLOOP_IMPLEMENTATION_PLAN.md` before planning or implementing product work. It is the product baseline.
 - Work phase by phase and feature by feature. Implement only the task the user approved; do not build multiple phases or the whole app at once.
-- The current approved scope includes Phase 1 authentication and roles, Phase 2 facility settings/sports/courts/sessions, Phase 3 queue operations with audited staff skips, and Phase 4 court/match lifecycle. Do not add Realtime behavior until that later phase is approved.
+- The current approved scope includes Phases 1–5: authentication and roles, facility settings/sports/courts/sessions, transactional queue operations, court/match lifecycle, and session-scoped Realtime updates. Do not start Phase 6 or later without approval.
 - Do not add another backend, database, framework, or service without the user's approval.
 - Preserve existing files and working behavior. Inspect the relevant code and instructions before editing; do not overwrite or remove user content.
 
@@ -16,6 +16,7 @@
 - Facility roles are granted only through trusted administrative provisioning. Never add a user-facing path that lets an account assign or change its own `facility_members.role`.
 - Keep service-role keys server-only. Commit placeholders in `.env.example`, never real secrets.
 - Critical queue and match operations must use trusted transactional database/server-side operations when those phases are approved.
+- Treat Supabase Realtime only as an invalidation signal: broadcast minimal session/table/operation metadata, then reload authoritative data through existing server queries and RPCs. Keep session channel authorization scoped to open sessions or the facility's staff/admin members; never expose match rows or staff notes in event payloads.
 - Add or update focused tests for behavior changes. Preserve accessible labels, keyboard support, responsive behavior, and clear loading/error states.
 
 ## Validation and reporting

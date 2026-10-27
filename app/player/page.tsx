@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PlayerMatchHistory } from "@/components/matches/match-history";
+import { SessionRealtime } from "@/components/realtime/session-realtime";
 import { requireAuthenticatedUser } from "@/lib/auth/guards";
 import { loadMyMatchHistory } from "@/lib/matches/queries";
 import { isFacilityRole } from "@/lib/auth/roles";
@@ -18,6 +19,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
   const [
     { data: profile, error: profileError },
     { data: memberships, error: membershipError },
+    { data: activeQueueEntries, error: activeQueueEntriesError },
     matchHistoryResult,
   ] = await Promise.all([
     supabase
@@ -29,6 +31,11 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
       .from("facility_members")
       .select("facility_id, role")
       .eq("user_id", user.id),
+    supabase
+      .from("queue_entries")
+      .select("session_id")
+      .eq("player_id", user.id)
+      .in("status", ["waiting", "assigned"]),
     loadMyMatchHistory(supabase),
   ]);
 
@@ -39,6 +46,12 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
     console.error(
       "Could not load the current user's facility memberships.",
       membershipError.code,
+    );
+  }
+  if (activeQueueEntriesError) {
+    console.error(
+      "Could not load the current user's active queue sessions.",
+      activeQueueEntriesError.code,
     );
   }
 
@@ -72,6 +85,32 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
         >
           Browse open sessions
         </Link>
+        <div className="mt-6">
+          <SessionRealtime
+            sessionIds={
+              [
+                ...(activeQueueEntries ?? []).map((entry) => entry.session_id),
+                ...(matchHistoryResult.data
+                  ?.filter(
+                    (match) =>
+                      match.status === "assigned" ||
+                      match.status === "in_progress",
+                  )
+                  .map((match) => match.session_id) ?? []),
+              ]
+            }
+          />
+        </div>
+
+        {activeQueueEntriesError ? (
+          <p
+            className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+            role="alert"
+          >
+            Live updates could not be configured for your active queues.
+            Refresh this page to try again.
+          </p>
+        ) : null}
 
         {profileError || !profile ? (
           <p
