@@ -6,7 +6,7 @@ RallyLoop is a responsive web app foundation for recreational court sports. Its 
 
 ## Current phase
 
-Phase 1 includes email/password sign-up, sign-in, email confirmation, sign-out, profile creation, protected player routes, facility-scoped staff/admin checks, and RLS for profiles, facilities, and facility memberships. Facility management tools, queues, and matches are not implemented yet.
+Phase 2 includes Phase 1 authentication and roles, admin-managed facility details/courts/sessions, and public discovery of open sessions. Queue actions, matches, staff overrides, and Realtime are not implemented yet.
 
 ## Requirements
 
@@ -40,13 +40,13 @@ Use your project URL root, not its `/rest/v1` endpoint. The Supabase URL and pub
 ## Supabase setup
 
 1. In Supabase **Authentication → URL Configuration**, set the local Site URL to `http://localhost:3000` and allow the redirect URL `http://localhost:3000/auth/confirm`. Add the production URL and its `/auth/confirm` callback before deploying.
-2. Apply [`supabase/migrations/20261027000000_phase1_auth_and_roles.sql`](./supabase/migrations/20261027000000_phase1_auth_and_roles.sql) to the Supabase project using the Supabase SQL Editor. To use the CLI instead, first initialize and link a Supabase CLI project.
+2. Apply migrations in filename order using the Supabase SQL Editor: [`20261027000000_phase1_auth_and_roles.sql`](./supabase/migrations/20261027000000_phase1_auth_and_roles.sql), then [`20261028000000_phase2_facilities_courts_sessions.sql`](./supabase/migrations/20261028000000_phase2_facilities_courts_sessions.sql). To use the CLI instead, first initialize and link a Supabase CLI project.
 3. Configure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_SITE_URL` locally, then start the app. New accounts receive a profile through a database trigger; email confirmation follows the project’s Supabase Auth settings.
-4. The first facility and administrator membership must be provisioned by a trusted project owner in the Supabase SQL Editor until the facility setup feature is implemented. Authenticated application users cannot insert, change, or delete facility roles. Create the facility, then grant `admin` to the confirmed account’s profile using the owner’s SQL access; never grant a role based on client-submitted data.
+4. The first facility and administrator membership must be provisioned by a trusted project owner in the Supabase SQL Editor. Authenticated application users cannot insert, change, or delete facility roles. Create the facility, then grant `admin` to the confirmed account’s profile using the owner’s SQL access; never grant a role based on client-submitted data. Once provisioned, admins can update facility settings and manage courts/sessions in the app.
 
-The migration enables RLS on all Phase 1 tables. Profiles are private to their owner; facility reads and updates are membership-scoped; membership records are readable by their owner and facility admins but cannot be written through the client API.
+RLS protects profiles, facility memberships, courts, and sessions. Admin-only writes are enforced by policies or the transactional `save_session` RPC. Open sessions and the facility/sport/court details needed to discover them are readable without signing in; draft and closed sessions and unassigned courts remain private to facility members.
 
-Run the RLS contract tests against a Supabase database with pgTAP available by executing [`supabase/tests/database/phase1_auth_rls.test.sql`](./supabase/tests/database/phase1_auth_rls.test.sql). Unit tests cover role and redirect validation.
+Run both RLS contract tests against a Supabase database with pgTAP available: [`phase1_auth_rls.test.sql`](./supabase/tests/database/phase1_auth_rls.test.sql) and [`phase2_facilities_sessions.test.sql`](./supabase/tests/database/phase2_facilities_sessions.test.sql). Unit tests cover auth and facility input validation.
 
 Start the development server:
 
@@ -67,13 +67,15 @@ npm run build
 
 ## Project map
 
-- `app/` — App Router landing page, auth pages/callback, player page, and protected management route
+- `app/` — App Router landing page, auth pages/callback, player and facility management routes, plus open session discovery
 - `components/ui/` — initialized shadcn/ui components
 - `lib/auth/` — auth actions, role/redirect validation, and server-side route guards
+- `lib/facilities/` — facility, court, and session input validation/actions
+- `lib/sessions/` — public session discovery queries
 - `lib/supabase/` — typed server, browser, and request-session Supabase SSR clients
 - `supabase/migrations/` — version-controlled database schema and RLS policies
 - `supabase/tests/database/` — pgTAP RLS contract tests
-- `tests/auth/` — isolated auth/role validation tests
+- `tests/` — isolated auth and facility validation tests
 - `AGENTS.md` — repository-wide development rules
 - `.github/copilot-instructions.md` — Copilot-specific entry point to those rules
 

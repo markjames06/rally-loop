@@ -4,7 +4,7 @@
 
 - Read `RALLYLOOP_IMPLEMENTATION_PLAN.md` before planning or implementing product work. It is the product baseline.
 - Work phase by phase and feature by feature. Implement only the task the user approved; do not build multiple phases or the whole app at once.
-- The current codebase is progressing through the approved phases. The approved Phase 1 scope includes Supabase authentication, profiles, protected player routes, facility-scoped staff/admin checks, and RLS. Do not add dashboards, facility setup, queue operations, or match functionality until those phases are approved.
+- The current approved scope includes Phase 1 authentication and roles plus Phase 2 facility settings, sports, courts, and sessions. Do not add queue operations, match functionality, or Realtime behavior until those later phases are approved.
 - Do not add another backend, database, framework, or service without the user's approval.
 - Preserve existing files and working behavior. Inspect the relevant code and instructions before editing; do not overwrite or remove user content.
 

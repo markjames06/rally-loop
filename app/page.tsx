@@ -44,6 +44,9 @@ export default function Home() {
         </Link>
 
         <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-medium text-slate-300 sm:flex">
+          <Link className="transition hover:text-white" href="/sessions">
+            Open sessions
+          </Link>
           <a className="transition hover:text-white" href="#how-it-works">
             How it works
           </a>
@@ -94,10 +97,10 @@ export default function Home() {
                 asChild
                 className="h-12 rounded-full bg-lime-300 px-6 text-base font-bold text-slate-950 hover:bg-lime-200"
               >
-                <a href="#how-it-works">
-                  See how it works
+                <Link href="/sessions">
+                  Browse open sessions
                   <ArrowUpRight aria-hidden="true" />
-                </a>
+                </Link>
               </Button>
               <Link
                 className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 px-6 text-sm font-semibold text-white transition hover:border-white/35 hover:bg-white/5"

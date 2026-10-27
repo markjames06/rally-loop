@@ -1,19 +1,21 @@
-# Supabase Phase 1 setup
+# Supabase setup
 
-## Apply the migration
+## Apply the migrations
 
-Apply migrations in filename order using the Supabase SQL Editor or the Supabase CLI. Phase 1 creates:
+Apply migrations in filename order using the Supabase SQL Editor or the Supabase CLI.
+
+The Phase 1 migration creates:
 
 - `profiles`, with a database trigger that creates a profile from validated sign-up metadata.
 - `facilities` and `facility_members`, with staff/admin roles and one membership per user per facility.
 - A security-definer membership check used by facility-scoped RLS policies.
 - RLS policies and column/table grants that prevent account holders from assigning or changing facility roles.
 
-The application has no facility-creation or staff-management UI in this phase.
+The authentication phase does not create facilities or manage staff.
 
 ## Bootstrap the first facility administrator
 
-Until Phase 2 facility setup is implemented, a trusted Supabase project owner must provision the initial facility and admin membership through the Supabase SQL Editor. Replace the sample values with your own facility details and the exact email used to register and confirm the first administrator account. Run once:
+A trusted Supabase project owner must provision the initial facility and admin membership through the Supabase SQL Editor. The application intentionally does not let a user grant themselves a facility role. Replace the sample values with your own facility details and the exact email used to register and confirm the first administrator account. Run once:
 
 ```sql
 begin;
@@ -48,8 +50,14 @@ commit;
 
 Only a trusted project owner should run this script. Do not expose a client-side action for changing `facility_members.role`. Staff/admin assignments remain a privileged operation until a later approved feature implements secure management.
 
+## Phase 2 facilities, courts, and sessions
+
+After both migrations are applied and the first facility administrator is provisioned, the admin can open `/management/{facilityId}` to update facility details, manage courts, and create/edit sessions. The application does not create facilities or let users assign facility roles. The Phase 2 migration seeds Pickleball, Badminton, and Tennis.
+
+Session times are entered and displayed in the facility's IANA timezone and stored in PostgreSQL as UTC timestamps. Session saves run through the `save_session` PostgreSQL function, which checks the caller's admin membership, validates facility/sport/court compatibility, and writes session details and court links in one transaction. Court writes use RLS and facility-scoped admin policies. Open sessions and the minimum facility/sport/court details needed to discover them are public; other session states and unassigned courts remain facility-scoped. Queue operations and matches are not part of this phase.
+
 ## Validate row-level security
 
-Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql) against the migrated Supabase database with pgTAP available. The file rolls back its transaction and checks that RLS is enabled, reads are membership-scoped, and authenticated/anonymous API roles cannot modify membership roles or profile ownership.
+Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql) and [`tests/database/phase2_facilities_sessions.test.sql`](./tests/database/phase2_facilities_sessions.test.sql) against the migrated Supabase database with pgTAP available. Each test rolls back its transaction and checks the relevant RLS, grants, and database contracts.
 
-The TypeScript auth and redirect tests run with `npm test`.
+The TypeScript auth, redirect, and facility validation tests run with `npm test`.

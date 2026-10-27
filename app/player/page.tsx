@@ -62,6 +62,12 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
         <p className="mt-3 text-sm text-slate-400">
           Signed in as {user.email ?? "your account"}.
         </p>
+        <Link
+          className="mt-5 inline-flex min-h-11 items-center rounded-full bg-lime-300 px-5 text-sm font-bold text-slate-950 transition hover:bg-lime-200"
+          href="/sessions"
+        >
+          Browse open sessions
+        </Link>
 
         {profileError || !profile ? (
           <p

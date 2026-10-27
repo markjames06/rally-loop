@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { FacilitySetup } from "@/components/facilities/facility-setup";
 import { requireFacilityRole } from "@/lib/auth/guards";
-import { facilityRoles } from "@/lib/auth/roles";
+import { toLocalDateTimeInput } from "@/lib/facilities/datetime";
+import { isValidTimezone } from "@/lib/facilities/validation";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +20,74 @@ export default async function ManagementPage({
   const { facilityId } = await params;
   const { user, role } = await requireFacilityRole(
     facilityId,
-    facilityRoles,
+    ["admin", "staff"],
     `/management/${facilityId}`,
   );
+  const supabase = await createClient();
+  const [
+    { data: facility, error: facilityError },
+    { data: sports, error: sportsError },
+    { data: courts, error: courtsError },
+    { data: sessions, error: sessionsError },
+    { data: sessionCourts, error: sessionCourtsError },
+  ] = await Promise.all([
+    supabase
+      .from("facilities")
+      .select("id, name, slug, address, timezone")
+      .eq("id", facilityId)
+      .maybeSingle(),
+    supabase
+      .from("sports")
+      .select("id, name, slug")
+      .eq("is_active", true)
+      .order("name"),
+    supabase
+      .from("courts")
+      .select("id, facility_id, name, sport_id, status")
+      .eq("facility_id", facilityId)
+      .order("name"),
+    supabase
+      .from("sessions")
+      .select(
+        "id, facility_id, sport_id, name, starts_at, ends_at, status, players_per_match, queue_policy",
+      )
+      .eq("facility_id", facilityId)
+      .order("starts_at", { ascending: false }),
+    supabase
+      .from("session_courts")
+      .select("session_id, court_id, facility_id, sport_id")
+      .eq("facility_id", facilityId),
+  ]);
+
+  if (facilityError) {
+    console.error("Could not load facility details.", facilityError.code);
+  }
+  if (sportsError) {
+    console.error("Could not load active sports.", sportsError.code);
+  }
+  if (courtsError) {
+    console.error("Could not load facility courts.", courtsError.code);
+  }
+  if (sessionsError) {
+    console.error("Could not load facility sessions.", sessionsError.code);
+  }
+  if (sessionCourtsError) {
+    console.error("Could not load session court links.", sessionCourtsError.code);
+  }
+
+  if (!facility && !facilityError) {
+    notFound();
+  }
+
+  const loadError =
+    facilityError ||
+    sportsError ||
+    courtsError ||
+    sessionsError ||
+    sessionCourtsError;
+  const timezoneValid = facility
+    ? isValidTimezone(facility.timezone)
+    : false;
 
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8">
@@ -29,32 +98,63 @@ export default async function ManagementPage({
         <SignOutButton />
       </header>
 
-      <section className="py-12">
-        <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
-          Facility access verified
-        </p>
-        <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Management access
-        </h1>
-        <p className="mt-3 text-sm text-slate-400">
-          Your {role} membership for this facility was checked on the server.
-        </p>
-        <p className="mt-2 break-all font-mono text-xs text-slate-500">
-          Facility ID: {facilityId}
-        </p>
-        <p className="mt-8 text-sm text-slate-300">
-          Facility management tools will be added in a later phase.
-        </p>
-        <Link
-          className="mt-6 inline-flex text-sm font-bold text-lime-300 hover:text-lime-200"
-          href="/player"
-        >
-          Return to your player space
-        </Link>
-        <p className="mt-3 text-xs text-slate-500">
-          Signed in as {user.email ?? "your account"}.
-        </p>
+      <section className="py-10">
+        <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
+              Facility management
+            </p>
+            <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              {facility?.name ?? "Facility setup"}
+            </h1>
+            <p className="mt-3 text-sm text-slate-400">
+              Your {role} access was verified on the server
+              {role === "admin" ? ". Configure details, courts, and sessions." : "."}
+            </p>
+          </div>
+          <Link
+            className="text-sm font-bold text-lime-300 hover:text-lime-200"
+            href="/sessions"
+          >
+            Browse open sessions
+          </Link>
+        </div>
+
+        {loadError ? (
+          <p
+            className="rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+            role="alert"
+          >
+            Facility setup could not be loaded. Refresh the page to try again.
+          </p>
+        ) : facility ? (
+          <FacilitySetup
+            courts={courts ?? []}
+            defaultStartValue={
+              timezoneValid
+                ? toLocalDateTimeInput(new Date().toISOString(), facility.timezone)
+                : ""
+            }
+            editable={role === "admin"}
+            facility={facility}
+            sessions={(sessions ?? []).map((session) => ({
+              session,
+              courtIds: (sessionCourts ?? [])
+                .filter((link) => link.session_id === session.id)
+                .map((link) => link.court_id),
+            }))}
+            sports={sports ?? []}
+            timezoneValid={timezoneValid}
+          />
+        ) : null}
       </section>
+
+      <footer className="border-t border-white/10 py-6 text-sm text-slate-400">
+        Signed in as {user.email ?? "your account"}.{" "}
+        <Link className="font-semibold text-lime-300" href="/player">
+          Return to player space
+        </Link>
+      </footer>
     </main>
   );
 }
