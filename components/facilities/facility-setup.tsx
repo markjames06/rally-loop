@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StaffQueueManager } from "@/components/queue/queue-panel";
 import {
   deleteCourtAction,
   saveCourtAction,
@@ -17,6 +18,7 @@ import {
   toLocalDateTimeInput,
 } from "@/lib/facilities/datetime";
 import type { Database } from "@/types/database";
+import type { WaitingQueueEntry } from "@/lib/queue/queries";
 
 type FacilityRow = Pick<
   Database["public"]["Tables"]["facilities"]["Row"],
@@ -46,6 +48,7 @@ type SessionRow = Pick<
 type SessionWithCourts = {
   session: SessionRow;
   courtIds: string[];
+  queueEntries: WaitingQueueEntry[] | null;
 };
 
 const initialState: FacilityActionState = {};
@@ -522,35 +525,45 @@ export function FacilitySetup({
               ? "No sessions yet. Create a draft or open session."
               : "No sessions have been configured for this facility."}
           </p>
-        ) : editable ? (
+        ) : (
           <div className="mb-6 space-y-4">
             {sessions.map((item) => (
-              <SessionForm
-                courts={courts}
-                facilityId={facility.id}
+              <article
+                className="rounded-xl border border-white/10 p-4"
                 key={item.session.id}
-                sports={sports}
-                timezone={facility.timezone}
-                defaultStartValue={defaultStartValue}
-                value={item}
-              />
+              >
+                <p className="font-semibold">{item.session.name}</p>
+                <p className="mt-1 text-sm text-slate-400">
+                  {item.session.status} ·{" "}
+                  {formatFacilityDateTime(
+                    item.session.starts_at,
+                    facility.timezone,
+                  )}
+                </p>
+                {editable ? (
+                  <SessionForm
+                    courts={courts}
+                    facilityId={facility.id}
+                    sports={sports}
+                    timezone={facility.timezone}
+                    defaultStartValue={defaultStartValue}
+                    value={item}
+                  />
+                ) : null}
+                {item.queueEntries === null ? (
+                  <p className="mt-4 text-sm text-rose-200" role="alert">
+                    This session&apos;s queue could not be loaded.
+                  </p>
+                ) : (
+                  <StaffQueueManager
+                    entries={item.queueEntries}
+                    facilityId={facility.id}
+                    sessionId={item.session.id}
+                  />
+                )}
+              </article>
             ))}
           </div>
-        ) : (
-          <ul className="mb-6 space-y-3">
-            {sessions.map(({ session }) => (
-              <li
-                className="rounded-xl border border-white/10 px-4 py-3"
-                key={session.id}
-              >
-                <p className="font-semibold">{session.name}</p>
-                <p className="mt-1 text-sm text-slate-400">
-                  {session.status} ·{" "}
-                  {formatFacilityDateTime(session.starts_at, facility.timezone)}
-                </p>
-              </li>
-            ))}
-          </ul>
         )}
         {editable && timezoneValid ? (
           <SessionForm

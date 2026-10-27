@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { hasEnvVars } from "@/lib/utils";
 import { formatFacilityDateTime } from "@/lib/facilities/datetime";
 import { isUuid } from "@/lib/facilities/validation";
+import { QueuePanel } from "@/components/queue/queue-panel";
+import { canJoinQueue } from "@/lib/queue/rules";
+import { loadSessionQueue } from "@/lib/queue/queries";
 import { createClient } from "@/lib/supabase/server";
 import { loadOpenSession } from "@/lib/sessions/queries";
 
@@ -38,6 +41,14 @@ export default async function SessionPage({ params }: SessionPageProps) {
   }
 
   const summary = result.data?.[0];
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    console.error("Could not verify the current user for the session queue.", authError.code);
+  }
+  const queueResult =
+    summary && authData.user
+      ? await loadSessionQueue(supabase, sessionId, authData.user.id)
+      : null;
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8">
@@ -133,10 +144,31 @@ export default async function SessionPage({ params }: SessionPageProps) {
               </p>
             )}
           </section>
-          <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-400">
-            Queue registration is not available yet. This page is for session
-            discovery only.
-          </p>
+          {authError ? (
+            <p
+              className="mt-8 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100"
+              role="alert"
+            >
+              We could not verify your account, so the session queue is
+              unavailable. Refresh the page to try again.
+            </p>
+          ) : queueResult?.data === null ? (
+            <p
+              className="mt-8 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100"
+              role="alert"
+            >
+              The session queue could not be loaded. Refresh the page to try
+              again.
+            </p>
+          ) : (
+            <QueuePanel
+              canJoin={canJoinQueue(summary.session.status)}
+              entries={queueResult?.data?.entries ?? []}
+              myEntry={queueResult?.data?.myEntry ?? null}
+              sessionId={sessionId}
+              signedIn={Boolean(authData.user)}
+            />
+          )}
         </article>
       ) : null}
     </main>

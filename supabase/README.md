@@ -56,8 +56,16 @@ After both migrations are applied and the first facility administrator is provis
 
 Session times are entered and displayed in the facility's IANA timezone and stored in PostgreSQL as UTC timestamps. Session saves run through the `save_session` PostgreSQL function, which checks the caller's admin membership, validates facility/sport/court compatibility, and writes session details and court links in one transaction. Court writes use RLS and facility-scoped admin policies. Open sessions and the minimum facility/sport/court details needed to discover them are public; other session states and unassigned courts remain facility-scoped. Queue operations and matches are not part of this phase.
 
+## Phase 3 transactional queue
+
+Apply [`migrations/20261029000000_phase3_queue_engine.sql`](./migrations/20261029000000_phase3_queue_engine.sql) after Phase 1 and Phase 2. Queue joins, withdrawals, and staff skips use PostgreSQL functions that lock the session row and run each state change as one transaction. A partial unique index prevents multiple waiting/assigned entries for a player in a session. Positions are calculated from waiting entries ordered by `joined_at`, then entry ID.
+
+Players can join or leave their own waiting entry. Facility staff can skip a waiting entry with a required reason; the status update and audit log are written atomically. Queue reads expose waiting players' display names and positions, never emails. Direct client inserts, updates, and deletes of queue entries and audit logs are revoked.
+
+Phase 3 does not assign players to matches. The queue status reserves `assigned` for the later match lifecycle, but the match schema and active-match eligibility checks arrive in Phase 4; do not treat queue join as match assignment.
+
 ## Validate row-level security
 
-Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql) and [`tests/database/phase2_facilities_sessions.test.sql`](./tests/database/phase2_facilities_sessions.test.sql) against the migrated Supabase database with pgTAP available. Each test rolls back its transaction and checks the relevant RLS, grants, and database contracts.
+Run [`tests/database/phase1_auth_rls.test.sql`](./tests/database/phase1_auth_rls.test.sql), [`tests/database/phase2_facilities_sessions.test.sql`](./tests/database/phase2_facilities_sessions.test.sql), and [`tests/database/phase3_queue.test.sql`](./tests/database/phase3_queue.test.sql) against the migrated Supabase database with pgTAP available. Each test rolls back its transaction and checks the relevant RLS, grants, and database contracts.
 
-The TypeScript auth, redirect, and facility validation tests run with `npm test`.
+The TypeScript auth, facility, and queue rules tests run with `npm test`.

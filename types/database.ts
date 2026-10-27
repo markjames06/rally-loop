@@ -8,6 +8,11 @@ export type SessionStatus =
   | "closed"
   | "completed";
 export type QueuePolicy = "fifo";
+export type QueueEntryStatus =
+  | "waiting"
+  | "assigned"
+  | "withdrawn"
+  | "skipped";
 
 type Table<Row, Insert, Update> = {
   Row: Row;
@@ -188,6 +193,48 @@ export type Database = {
         },
         never
       >;
+      queue_entries: Table<
+        {
+          id: string;
+          session_id: string;
+          player_id: string;
+          status: QueueEntryStatus;
+          joined_at: string;
+          updated_at: string;
+          handled_by: string | null;
+          admin_note: string | null;
+        },
+        {
+          id?: string;
+          session_id: string;
+          player_id: string;
+          status?: QueueEntryStatus;
+          joined_at?: string;
+          updated_at?: string;
+          handled_by?: string | null;
+          admin_note?: string | null;
+        },
+        {
+          status?: QueueEntryStatus;
+          updated_at?: string;
+          handled_by?: string | null;
+          admin_note?: string | null;
+        }
+      >;
+      audit_logs: Table<
+        {
+          id: string;
+          facility_id: string;
+          actor_id: string;
+          action: string;
+          entity_type: string;
+          entity_id: string;
+          details: Record<string, unknown>;
+          created_at: string;
+        },
+        never,
+        never
+      >;
     };
     Views: Record<string, never>;
     Functions: {
@@ -213,12 +260,39 @@ export type Database = {
         };
         Returns: string;
       };
+      join_queue: {
+        Args: { _session_id: string };
+        Returns: string;
+      };
+      leave_queue: {
+        Args: { _session_id: string };
+        Returns: string;
+      };
+      get_session_queue: {
+        Args: { _session_id: string };
+        Returns: {
+          entry_id: string;
+          player_name: string;
+          queue_position: number;
+          joined_at: string;
+          is_current_user: boolean;
+        }[];
+      };
+      skip_queue_entry: {
+        Args: {
+          _session_id: string;
+          _entry_id: string;
+          _reason: string;
+        };
+        Returns: string;
+      };
     };
     Enums: {
       facility_role: FacilityRole;
       court_status: CourtStatus;
       session_status: SessionStatus;
       queue_policy: QueuePolicy;
+      queue_entry_status: QueueEntryStatus;
     };
     CompositeTypes: Record<string, never>;
   };

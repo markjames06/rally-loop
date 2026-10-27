@@ -6,6 +6,7 @@ import { FacilitySetup } from "@/components/facilities/facility-setup";
 import { requireFacilityRole } from "@/lib/auth/guards";
 import { toLocalDateTimeInput } from "@/lib/facilities/datetime";
 import { isValidTimezone } from "@/lib/facilities/validation";
+import { loadSessionQueue } from "@/lib/queue/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -85,6 +86,21 @@ export default async function ManagementPage({
     courtsError ||
     sessionsError ||
     sessionCourtsError;
+  const queueResults =
+    role === "admin" || role === "staff"
+      ? await Promise.all(
+          (sessions ?? []).map(async (session) => ({
+            sessionId: session.id,
+            result: await loadSessionQueue(supabase, session.id, user.id),
+          })),
+        )
+      : [];
+  const queuesBySessionId = new Map(
+    queueResults.map(({ sessionId, result }) => [
+      sessionId,
+      result.data?.entries ?? null,
+    ]),
+  );
   const timezoneValid = facility
     ? isValidTimezone(facility.timezone)
     : false;
@@ -142,6 +158,7 @@ export default async function ManagementPage({
               courtIds: (sessionCourts ?? [])
                 .filter((link) => link.session_id === session.id)
                 .map((link) => link.court_id),
+                queueEntries: queuesBySessionId.get(session.id) ?? null,
             }))}
             sports={sports ?? []}
             timezoneValid={timezoneValid}
