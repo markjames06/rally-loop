@@ -1,8 +1,18 @@
 "use client";
 
-import { useActionState } from "react";
+import {
+  ArrowRight,
+  CalendarClock,
+  CheckCircle2,
+  CirclePlay,
+  OctagonAlert,
+  Trophy,
+} from "lucide-react";
+import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { useActionToast } from "@/components/ui/toast";
 import {
   assignNextMatchAction,
   cancelMatchAction,
@@ -73,6 +83,7 @@ function AssignNextMatchForm({
   const action = assignNextMatchAction.bind(null, facilityId, sessionId);
   const [state, formAction, pending] = useActionState(action, initialState);
   const availableCourts = courts.filter((court) => court.status === "available");
+  useActionToast(state);
 
   return (
     <form
@@ -114,7 +125,14 @@ function AssignNextMatchForm({
           }
           type="submit"
         >
-          {pending ? "Assigning..." : `Assign next ${playersPerMatch}`}
+          {pending ? (
+            "Assigning..."
+          ) : (
+            <>
+              Assign next {playersPerMatch}
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </>
+          )}
         </Button>
       </div>
       {!availableCourts.length ? (
@@ -177,71 +195,123 @@ function MatchControls({
     cancelAction,
     initialState,
   );
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+
+  useActionToast(startState);
+  useActionToast(completeState);
+  useActionToast(cancelState);
 
   return (
     <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
       {canStartMatch(status, sessionStatus) ? (
         <form action={startFormAction}>
           <Button disabled={starting} type="submit">
-            {starting ? "Starting..." : "Start match"}
+            {starting ? (
+              "Starting..."
+            ) : (
+              <>
+                <CirclePlay aria-hidden="true" className="size-4" />
+                Start match
+              </>
+            )}
           </Button>
           <MatchFeedback state={startState} />
         </form>
       ) : null}
       {status === "in_progress" ? (
-        <form
-          action={completeFormAction}
-          className="flex flex-col gap-2 sm:flex-row"
-          onSubmit={(event) => {
-            if (!window.confirm("Complete this match and release the court?")) {
-              event.preventDefault();
-            }
-          }}
-        >
-          <label className="sr-only" htmlFor={`complete-notes-${matchId}`}>
-            Completion notes
-          </label>
-          <input
-            className="h-9 min-w-0 flex-1 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            id={`complete-notes-${matchId}`}
-            maxLength={500}
-            name="notes"
-            placeholder="Optional result or completion notes"
-          />
-          <Button disabled={completing} type="submit">
-            {completing ? "Completing..." : "Complete match"}
+        <>
+          <Button
+            onClick={() => setCompleteDialogOpen(true)}
+            type="button"
+            variant="outline"
+          >
+            <CheckCircle2 aria-hidden="true" className="size-4" />
+            Complete match
           </Button>
-        </form>
+          <Dialog
+            description="Confirm the match is finished. The court will be released for the next players."
+            onOpenChange={setCompleteDialogOpen}
+            open={completeDialogOpen}
+            title="Complete this match?"
+          >
+            <form action={completeFormAction} className="space-y-4">
+              <label className="block space-y-2 text-sm font-medium text-[#36463a]">
+                <span>Result or completion notes (optional)</span>
+                <input
+                  className="h-11 w-full rounded-lg border border-[#d6ddcd] bg-white px-3 text-sm text-[#19251e] placeholder:text-[#89948a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7eaa39]"
+                  maxLength={500}
+                  name="notes"
+                  placeholder="Add a result or note for staff"
+                />
+              </label>
+              <MatchFeedback state={completeState} />
+              <div className="flex flex-col-reverse justify-end gap-2 sm:flex-row">
+                <Button
+                  onClick={() => setCompleteDialogOpen(false)}
+                  type="button"
+                  variant="outline"
+                >
+                  Keep in play
+                </Button>
+                <Button disabled={completing} type="submit">
+                  {completing ? "Completing..." : "Complete match"}
+                </Button>
+              </div>
+            </form>
+          </Dialog>
+        </>
       ) : null}
       {status === "assigned" || status === "in_progress" ? (
-        <form
-          action={cancelFormAction}
-          className="flex flex-col gap-2 sm:flex-row"
-          onSubmit={(event) => {
-            if (!window.confirm("Cancel this match and return players to the queue?")) {
-              event.preventDefault();
-            }
-          }}
-        >
-          <label className="sr-only" htmlFor={`cancel-reason-${matchId}`}>
-            Reason for cancelling this match
-          </label>
-          <input
-            className="h-9 min-w-0 flex-1 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            id={`cancel-reason-${matchId}`}
-            maxLength={500}
-            minLength={3}
-            name="reason"
-            placeholder="Cancellation reason (required)"
-            required
-          />
-          <Button disabled={cancelling} type="submit" variant="outline">
-            {cancelling ? "Cancelling..." : "Cancel match"}
+        <>
+          <Button
+            className="border-[#e8c8bc] text-[#973f31] hover:bg-[#fff2ed] hover:text-[#87372c]"
+            onClick={() => setCancelDialogOpen(true)}
+            type="button"
+            variant="outline"
+          >
+            <OctagonAlert aria-hidden="true" className="size-4" />
+            Cancel match
           </Button>
-        </form>
+          <Dialog
+            description="This returns assigned players to the waiting queue. Add a reason so staff can understand why the match was cancelled."
+            onOpenChange={setCancelDialogOpen}
+            open={cancelDialogOpen}
+            title="Cancel this match?"
+          >
+            <form action={cancelFormAction} className="space-y-4">
+              <label className="block space-y-2 text-sm font-medium text-[#36463a]">
+                <span>Cancellation reason</span>
+                <input
+                  className="h-11 w-full rounded-lg border border-[#d6ddcd] bg-white px-3 text-sm text-[#19251e] placeholder:text-[#89948a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7eaa39]"
+                  maxLength={500}
+                  minLength={3}
+                  name="reason"
+                  placeholder="Why is this match being cancelled?"
+                  required
+                />
+              </label>
+              <MatchFeedback state={cancelState} />
+              <div className="flex flex-col-reverse justify-end gap-2 sm:flex-row">
+                <Button
+                  onClick={() => setCancelDialogOpen(false)}
+                  type="button"
+                  variant="outline"
+                >
+                  Keep match
+                </Button>
+                <Button
+                  className="bg-[#a33d31] text-white hover:bg-[#8e342b]"
+                  disabled={cancelling}
+                  type="submit"
+                >
+                  {cancelling ? "Cancelling..." : "Cancel match"}
+                </Button>
+              </div>
+            </form>
+          </Dialog>
+        </>
       ) : null}
-      <MatchFeedback state={completeState} />
-      <MatchFeedback state={cancelState} />
     </div>
   );
 }
@@ -272,7 +342,8 @@ function MatchCard({
       <p className="mt-2 text-sm text-slate-300">
         {match.player_names.join(", ") || "Players unavailable"}
       </p>
-      <p className="mt-2 text-xs text-slate-400">
+      <p className="mt-2 inline-flex items-center gap-2 text-xs text-slate-400">
+        <CalendarClock aria-hidden="true" className="size-3.5" />
         Assigned {formatMatchDate(match.assigned_at, timezone)}
         {match.started_at
           ? ` · Started ${formatMatchDate(match.started_at, timezone)}`
@@ -329,9 +400,12 @@ export function MatchManager({
   return (
     <section
       aria-label="Match and court management"
-      className="mt-5 rounded-2xl border border-white/10 p-4"
+      className="mt-5 rounded-2xl border border-white/10 bg-[#f7f8f3] p-4"
     >
-      <h3 className="font-semibold">Matches and courts</h3>
+      <h3 className="inline-flex items-center gap-2 font-semibold">
+        <Trophy aria-hidden="true" className="size-4 text-[#52732f]" />
+        Matches and courts
+      </h3>
       <p className="mt-1 text-sm text-slate-400">
         Assigns the next {playersPerMatch} eligible players in FIFO order.
       </p>

@@ -1,0 +1,5 @@
+{
+  "prompt": "RallyLoop staff session-management desktop screen at 1440x900. The first question is who is next and which court is ready. Show the real product structure: facility navigation, a live session title, a FIFO waiting queue, court status, and a single assign-next action. Use the committed Movement Score world only in the IBM Plex type, score-paper palette, and one mirrored queue-and-time spine. This is a working web app, not a sports poster. Preserve standard navigation, tables, buttons, and readable player names. The HTML/CSS source is movement-queue-first.html; the PNG is its browser capture.",
+  "source": "HTML/CSS composition captured in Chromium; no external artwork",
+  "approved": true
+}

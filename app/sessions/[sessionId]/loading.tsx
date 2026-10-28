@@ -3,7 +3,7 @@ export default function SessionLoading() {
     <main
       aria-label="Loading session details"
       aria-live="polite"
-      className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8"
+      className="app-page mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8"
       role="status"
     >
       <div className="h-12 border-b border-white/10" />

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, CircleDot } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
@@ -121,10 +122,17 @@ export default async function ManagementPage({
     : false;
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8">
-      <header className="flex items-center justify-between border-b border-white/10 pb-6">
-        <Link className="text-xl font-extrabold tracking-tight" href="/">
-          Rally<span className="text-lime-300">Loop</span>
+    <main className="app-page mx-auto min-h-screen max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
+      <header className="flex items-center justify-between border-b border-white/10 pb-5">
+        <Link
+          aria-label="RallyLoop home"
+          className="inline-flex items-center gap-2.5 text-xl font-extrabold tracking-tight"
+          href="/"
+        >
+          <span className="grid size-9 place-items-center rounded-xl bg-[#c4e65d] text-[#19251e]">
+            <CircleDot aria-hidden="true" className="size-5" strokeWidth={2.5} />
+          </span>
+          RallyLoop
         </Link>
         <SignOutButton />
       </header>
@@ -137,7 +145,7 @@ export default async function ManagementPage({
         />
       </div>
 
-      <section className="py-10">
+      <section className="py-8 sm:py-10">
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
@@ -146,16 +154,18 @@ export default async function ManagementPage({
             <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
               {facility?.name ?? "Facility setup"}
             </h1>
-            <p className="mt-3 text-sm text-slate-400">
-              Your {role} access was verified on the server
-              {role === "admin" ? ". Configure details, courts, and sessions." : "."}
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+              {role === "admin"
+                ? "Manage the facility, keep courts ready, and move every open session forward."
+                : "Keep an eye on the queue, matches, and court activity at your facility."}
             </p>
           </div>
-          <Link
-            className="text-sm font-bold text-lime-300 hover:text-lime-200"
+            <Link
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#d6ddcd] bg-white px-4 text-sm font-bold text-[#365323] transition hover:bg-[#f5f8ee]"
             href="/sessions"
           >
             Browse open sessions
+              <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </div>
 
@@ -190,10 +200,11 @@ export default async function ManagementPage({
         ) : null}
       </section>
 
-      <footer className="border-t border-white/10 py-6 text-sm text-slate-400">
-        Signed in as {user.email ?? "your account"}.{" "}
-        <Link className="font-semibold text-lime-300" href="/player">
+      <footer className="flex flex-col gap-3 border-t border-white/10 py-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <span>Signed in as {user.email ?? "your account"}.</span>
+        <Link className="inline-flex items-center gap-2 font-semibold text-lime-300" href="/player">
           Return to player space
+          <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
       </footer>
     </main>

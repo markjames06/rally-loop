@@ -29,7 +29,7 @@ const steps = [
 
 export default function Home() {
   return (
-    <main>
+    <main className="marketing-page">
       <header
         className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12"
         id="top"
@@ -43,7 +43,7 @@ export default function Home() {
           </span>
         </Link>
 
-        <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-medium text-slate-300 sm:flex">
+        <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-medium text-slate-300 lg:flex">
           <Link className="transition hover:text-white" href="/sessions">
             Open sessions
           </Link>

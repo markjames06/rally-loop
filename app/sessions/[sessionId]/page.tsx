@@ -1,4 +1,11 @@
 import Link from "next/link";
+import {
+  ArrowLeft,
+  CalendarClock,
+  CircleDot,
+  MapPin,
+  UsersRound,
+} from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { hasEnvVars } from "@/shared/lib/utils";
@@ -27,7 +34,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
 
   if (!hasEnvVars) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8">
+      <main className="app-page mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8">
         <PageHeader />
         <p className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-5 text-sm text-amber-100">
           Session details are unavailable until Supabase is configured.
@@ -57,7 +64,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
       : [null, null];
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-5 py-10 sm:px-8">
+    <main className="app-page mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8">
       <PageHeader />
       <div className="mt-6">
         <SessionRealtime
@@ -74,63 +81,85 @@ export default async function SessionPage({ params }: SessionPageProps) {
       ) : summary ? (
         <article className="py-10">
           <Link
-            className="text-sm font-bold text-lime-300 hover:text-lime-200"
+            className="inline-flex items-center gap-2 text-sm font-bold text-lime-300 transition hover:text-lime-200"
             href="/sessions"
           >
-            ← All open sessions
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            All open sessions
           </Link>
-          <p className="mt-8 text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
+          <p className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#e6edd9] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#45602c]">
+            <CircleDot aria-hidden="true" className="size-3.5" />
             {summary.sport.name} · Open session
           </p>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">
             {summary.session.name}
           </h1>
-          <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-6">
-            <h2 className="text-lg font-bold">{summary.facility.name}</h2>
-            {summary.facility.address ? (
-              <p className="mt-2 text-sm text-slate-300">
-                {summary.facility.address}
-              </p>
-            ) : null}
-            <p className="mt-5 text-sm text-slate-300">
-              <span className="font-semibold text-white">Starts:</span>{" "}
-              <time dateTime={summary.session.starts_at}>
-                {formatFacilityDateTime(
-                  summary.session.starts_at,
-                  summary.facility.timezone,
-                )}
-              </time>
-            </p>
-            {summary.session.ends_at ? (
-              <p className="mt-2 text-sm text-slate-300">
-                <span className="font-semibold text-white">Ends:</span>{" "}
-                <time dateTime={summary.session.ends_at}>
+          <section className="mt-8 overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 shadow-[0_14px_42px_rgba(27,45,31,0.06)]">
+            <div className="flex items-center gap-3 border-b border-white/10 bg-[#f3f5ef] px-5 py-4 sm:px-7">
+              <span className="grid size-10 place-items-center rounded-xl bg-[#e3edd2] text-[#45602c]">
+                <MapPin aria-hidden="true" className="size-5" />
+              </span>
+              <div>
+                <h2 className="font-bold">{summary.facility.name}</h2>
+                {summary.facility.address ? (
+                  <p className="mt-0.5 text-sm text-slate-400">
+                    {summary.facility.address}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <div className="p-5 sm:p-7">
+              <p className="inline-flex items-center gap-2 text-sm text-slate-300">
+                <CalendarClock
+                  aria-hidden="true"
+                  className="size-4 text-[#52732f]"
+                />
+                <span className="font-semibold text-white">Starts:</span>{" "}
+                <time dateTime={summary.session.starts_at}>
                   {formatFacilityDateTime(
-                    summary.session.ends_at,
+                    summary.session.starts_at,
                     summary.facility.timezone,
                   )}
                 </time>
               </p>
-            ) : null}
-            <p className="mt-2 text-sm text-slate-400">
-              Facility timezone: {summary.facility.timezone}
-            </p>
-            <dl className="mt-6 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">
-              <div>
-                <dt className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Players per match
-                </dt>
-                <dd className="mt-1 text-white">
-                  {summary.session.players_per_match}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Queue policy
-                </dt>
-                <dd className="mt-1 text-white">First in, first out (FIFO)</dd>
-              </div>
-            </dl>
+              {summary.session.ends_at ? (
+                <p className="mt-2 inline-flex items-center gap-2 text-sm text-slate-300">
+                  <CalendarClock
+                    aria-hidden="true"
+                    className="size-4 text-[#52732f]"
+                  />
+                  <span className="font-semibold text-white">Ends:</span>{" "}
+                  <time dateTime={summary.session.ends_at}>
+                    {formatFacilityDateTime(
+                      summary.session.ends_at,
+                      summary.facility.timezone,
+                    )}
+                  </time>
+                </p>
+              ) : null}
+              <p className="mt-2 text-sm text-slate-400">
+                Facility timezone: {summary.facility.timezone}
+              </p>
+              <dl className="mt-6 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">
+                <div className="rounded-xl bg-[#f3f5ef] p-4">
+                  <dt className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <span className="inline-flex items-center gap-2">
+                      <UsersRound aria-hidden="true" className="size-3.5" />
+                      Players per match
+                    </span>
+                  </dt>
+                  <dd className="mt-1 text-white">
+                    {summary.session.players_per_match}
+                  </dd>
+                </div>
+                <div className="rounded-xl bg-[#f3f5ef] p-4">
+                  <dt className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Queue policy
+                  </dt>
+                  <dd className="mt-1 text-white">First in, first out (FIFO)</dd>
+                </div>
+              </dl>
+            </div>
           </section>
 
           <section className="mt-8">
@@ -139,11 +168,12 @@ export default async function SessionPage({ params }: SessionPageProps) {
               <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                 {summary.courts.map((court) => (
                   <li
-                    className="rounded-2xl border border-white/10 bg-slate-900/70 p-4"
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4"
                     key={court.id}
                   >
                     <p className="font-semibold text-white">{court.name}</p>
-                    <p className="mt-1 text-sm text-slate-400">
+                    <p className="inline-flex items-center gap-2 text-sm text-slate-400">
+                      <span className="size-2 rounded-full bg-[#7ea43c]" />
                       Status: {court.status}
                     </p>
                   </li>
@@ -203,15 +233,23 @@ export default async function SessionPage({ params }: SessionPageProps) {
 
 function PageHeader() {
   return (
-    <header className="flex items-center justify-between border-b border-white/10 pb-6">
-      <Link className="text-xl font-extrabold tracking-tight" href="/">
-        Rally<span className="text-lime-300">Loop</span>
+    <header className="flex items-center justify-between border-b border-white/10 pb-5">
+      <Link
+        aria-label="RallyLoop home"
+        className="inline-flex items-center gap-2.5 text-xl font-extrabold tracking-tight"
+        href="/"
+      >
+        <span className="grid size-9 place-items-center rounded-xl bg-[#c4e65d] text-[#19251e]">
+          <CircleDot aria-hidden="true" className="size-5" strokeWidth={2.5} />
+        </span>
+        RallyLoop
       </Link>
       <Link
-        className="text-sm font-bold text-lime-300 hover:text-lime-200"
+        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#d6ddcd] bg-white px-4 text-sm font-bold text-[#365323] transition hover:bg-[#f5f8ee]"
         href="/sessions"
       >
         Open sessions
+        <ArrowLeft aria-hidden="true" className="size-4 rotate-180" />
       </Link>
     </header>
   );

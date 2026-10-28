@@ -1,9 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import {
+  CircleAlert,
+  CircleCheck,
+  LogIn,
+  LogOut,
+  UserPlus,
+  UsersRound,
+} from "lucide-react";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useActionToast } from "@/components/ui/toast";
 import {
   joinQueueAction,
   leaveQueueAction,
@@ -35,14 +44,16 @@ function QueueFeedback({
 }) {
   if (error) {
     return (
-      <p className="text-sm text-rose-200" role="alert">
+      <p className="inline-flex items-start gap-2 text-sm text-rose-200" role="alert">
+        <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         {error}
       </p>
     );
   }
   if (notice) {
     return (
-      <p className="text-sm text-lime-200" role="status">
+      <p className="inline-flex items-start gap-2 text-sm text-lime-200" role="status">
+        <CircleCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         {notice}
       </p>
     );
@@ -67,6 +78,8 @@ export function QueuePanel({
     leaveAction,
     initialState,
   );
+  useActionToast(joinState);
+  useActionToast(leaveState);
   const myPosition =
     myEntry?.status === "waiting"
       ? entries.find((entry) => entry.entryId === myEntry.id)?.position
@@ -75,19 +88,24 @@ export function QueuePanel({
   return (
     <section
       aria-labelledby="queue-heading"
-      className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-6"
+      className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-6"
     >
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold" id="queue-heading">
-            Session queue
-          </h2>
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#e6edd9] text-[#45602c]">
+            <UsersRound aria-hidden="true" className="size-5" />
+          </span>
+          <div>
+            <h2 className="text-xl font-bold" id="queue-heading">
+              Session queue
+            </h2>
           <p className="mt-1 text-sm text-slate-400">
             Waiting order is first in, first out.
           </p>
+          </div>
         </div>
         {signedIn ? (
-          <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-slate-300">
+          <span className="rounded-full bg-[#f0f3eb] px-3 py-1.5 text-xs font-bold tabular-nums text-[#455348]">
             {entries.length} waiting
           </span>
         ) : null}
@@ -95,7 +113,8 @@ export function QueuePanel({
 
       {myEntry && canWithdrawEntry(myEntry.status) ? (
         <div className="mt-5 rounded-2xl border border-lime-300/20 bg-lime-300/10 p-4">
-          <p className="font-semibold text-lime-100">
+          <p className="inline-flex items-center gap-2 font-semibold text-lime-100">
+            <CircleCheck aria-hidden="true" className="size-4" />
             {myPosition
               ? `You are #${myPosition} in the queue.`
               : "You are in this queue."}
@@ -104,8 +123,8 @@ export function QueuePanel({
             <Button
               disabled={leaving}
               type="submit"
-              variant="outline"
-            >
+              variant="outline">
+              <LogOut aria-hidden="true" className="size-4" />
               {leaving ? "Leaving..." : "Leave queue"}
             </Button>
           </form>
@@ -133,9 +152,10 @@ export function QueuePanel({
       {!signedIn ? (
         <p className="mt-5 text-sm text-slate-300">
           <Link
-            className="font-bold text-lime-300 hover:text-lime-200"
+            className="inline-flex items-center gap-1 font-bold text-lime-300 hover:text-lime-200"
             href={`/login?next=${encodeURIComponent(`/sessions/${sessionId}`)}`}
           >
+            <LogIn aria-hidden="true" className="size-4" />
             Sign in
           </Link>{" "}
           to view the waiting list or join the queue.
@@ -149,7 +169,14 @@ export function QueuePanel({
             disabled={joining}
             type="submit"
           >
-            {joining ? "Joining..." : "Join queue"}
+            {joining ? (
+              "Joining..."
+            ) : (
+              <>
+                <UserPlus aria-hidden="true" className="size-4" />
+                Join queue
+              </>
+            )}
           </Button>
           <QueueFeedback {...joinState} />
         </form>
@@ -165,7 +192,7 @@ export function QueuePanel({
               className="flex items-center gap-4 py-3"
               key={entry.entryId}
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-sm font-bold text-white">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#e8efd9] font-mono text-sm font-bold text-[#3e5b24]">
                 {entry.position}
               </span>
               <span className="min-w-0 flex-1 truncate text-sm text-slate-200">
@@ -189,7 +216,7 @@ export function QueuePanel({
           ))}
         </ol>
       ) : (
-        <p className="mt-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-400">
+        <p className="mt-6 rounded-xl border border-dashed border-white/10 bg-[#f7f8f3] px-4 py-4 text-sm text-slate-400">
           No players are waiting yet. Be the first to join.
         </p>
       )}
@@ -209,9 +236,12 @@ export function StaffQueueManager({
   return (
     <section
       aria-label="Staff queue controls"
-      className="mt-5 rounded-2xl border border-white/10 p-4"
+      className="mt-5 rounded-2xl border border-white/10 bg-[#f7f8f3] p-4"
     >
-      <h3 className="font-semibold">Waiting queue</h3>
+      <h3 className="inline-flex items-center gap-2 font-semibold">
+        <UsersRound aria-hidden="true" className="size-4 text-[#52732f]" />
+        Waiting queue
+      </h3>
       {entries.length ? (
         <ol className="mt-3 space-y-3">
           {entries.map((entry) => (
@@ -253,6 +283,7 @@ function SkipQueueForm({
     entryId,
   );
   const [state, formAction, pending] = useActionState(action, initialState);
+  useActionToast(state);
 
   return (
     <form action={formAction} className="flex flex-1 flex-col gap-2 sm:flex-row">

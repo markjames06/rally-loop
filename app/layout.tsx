@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { ToastProvider } from "@/components/ui/toast";
+
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "RallyLoop | Every Game. One Queue.",
+  title: "RallyLoop | Every game. One queue.",
   description:
     "Less waiting around. More time on court. RallyLoop brings players, sessions, and court rotations together in one simple place.",
 };
@@ -19,8 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-950 text-white antialiased">
-        {children}
+      <body className="min-h-screen antialiased">
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

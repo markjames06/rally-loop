@@ -1,6 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CircleAlert,
+  CircleCheck,
+  CircleDot,
+  LockKeyhole,
+  Mail,
+  UserRound,
+} from "lucide-react";
 import { useActionState } from "react";
 
 import {
@@ -11,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useActionToast } from "@/components/ui/toast";
 
 type AuthFormProps = {
   mode: "sign-in" | "sign-up";
@@ -24,6 +35,7 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
   const action = mode === "sign-in" ? signInAction : signUpAction;
   const [state, formAction, pending] = useActionState(action, initialState);
   const isSignUp = mode === "sign-up";
+  useActionToast(state);
 
   return (
     <div className="w-full max-w-md">
@@ -31,13 +43,22 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
         href="/"
       >
-        <span aria-hidden="true">←</span> Back to RallyLoop
+        <ArrowLeft aria-hidden="true" className="size-4" />
+        Back to RallyLoop
       </Link>
 
-      <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-2xl shadow-black/20 sm:p-8">
-        <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
-          Every Game. One Queue.
-        </p>
+      <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-[0_24px_70px_rgba(27,45,31,0.12)] sm:p-8">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="grid size-11 place-items-center rounded-2xl bg-[#c4e65d] text-[#19251e]">
+            <CircleDot aria-hidden="true" className="size-6" strokeWidth={2.5} />
+          </span>
+          <div>
+            <p className="font-extrabold tracking-tight text-white">RallyLoop</p>
+            <p className="mt-0.5 text-xs font-medium text-slate-400">
+              Every game. One queue.
+            </p>
+          </div>
+        </div>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white">
           {isSignUp ? "Join RallyLoop" : "Welcome back"}
         </h1>
@@ -49,25 +70,28 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
 
         {message ? (
           <p
-            className="mt-5 rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100"
+            className="mt-5 flex items-start gap-2 rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100"
             role="status"
           >
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
             {message}
           </p>
         ) : null}
         {state.error ? (
           <p
-            className="mt-5 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+            className="mt-5 flex items-start gap-2 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
             role="alert"
           >
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
             {state.error}
           </p>
         ) : null}
         {state.notice ? (
           <p
-            className="mt-5 rounded-xl border border-lime-300/20 bg-lime-300/10 px-4 py-3 text-sm text-lime-100"
+            className="mt-5 flex items-start gap-2 rounded-xl border border-lime-300/20 bg-lime-300/10 px-4 py-3 text-sm text-lime-100"
             role="status"
           >
+            <CircleCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
             {state.notice}
           </p>
         ) : null}
@@ -77,7 +101,8 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
 
           {isSignUp ? (
             <div className="space-y-2">
-              <Label className="text-slate-200" htmlFor="display_name">
+              <Label className="inline-flex items-center gap-2 text-slate-200" htmlFor="display_name">
+                <UserRound aria-hidden="true" className="size-4 text-[#52732f]" />
                 Display name
               </Label>
               <Input
@@ -94,7 +119,8 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
           ) : null}
 
           <div className="space-y-2">
-            <Label className="text-slate-200" htmlFor="email">
+            <Label className="inline-flex items-center gap-2 text-slate-200" htmlFor="email">
+              <Mail aria-hidden="true" className="size-4 text-[#52732f]" />
               Email
             </Label>
             <Input
@@ -109,7 +135,8 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-slate-200" htmlFor="password">
+            <Label className="inline-flex items-center gap-2 text-slate-200" htmlFor="password">
+              <LockKeyhole aria-hidden="true" className="size-4 text-[#52732f]" />
               Password
             </Label>
             <Input
@@ -137,8 +164,18 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
             {pending
               ? "Please wait..."
               : isSignUp
-                ? "Create account"
-                : "Sign in"}
+                ? (
+                  <>
+                    Create account
+                    <ArrowRight aria-hidden="true" className="size-4" />
+                  </>
+                )
+                : (
+                  <>
+                    Sign in
+                    <ArrowRight aria-hidden="true" className="size-4" />
+                  </>
+                )}
           </Button>
         </form>
 

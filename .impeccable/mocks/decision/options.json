@@ -1,0 +1,142 @@
+{
+  "title": "Choose RallyLoop’s visual world",
+  "question": "The roll assigned Labanotation. Keep it, choose an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "kind": "assigned",
+      "label": "Movement Score",
+      "kicker": "THE ROLL",
+      "lineage": "Labanotation movement scores",
+      "thesis": "A live session read as movement, position, and time.",
+      "palette": ["#f8f8f6", "#171918", "#d4e83a", "#d8d9d4"],
+      "materials": ["score paper", "ink blocks", "shaded beat bands"],
+      "viewport": "A clear session workspace leads with who is waiting, which courts are active, and the next staff action. A restrained mirrored court/time mark carries the notation system.",
+      "risk": "The notation is unfamiliar outside dance; keep court and queue labels literal.",
+      "raised": [
+        {
+          "from": "Gate Board",
+          "raise": "A changed court stays attached to its row and remains marked until staff have seen the update."
+        },
+        {
+          "from": "Streaming Catalog",
+          "raise": "Keyboard focus reveals one session’s secondary details in place; it never becomes a poster rail."
+        },
+        {
+          "from": "Botanical Folio",
+          "raise": "Court diagrams keep a consistent scale so occupancy is comparable across the product."
+        },
+        {
+          "from": "Variable Font Specimen",
+          "raise": "Reduced-motion mode settles live state changes directly, without interpolating queue positions."
+        }
+      ],
+      "html": ".impeccable/mocks/decision/assigned.html",
+      "htmlFrame": "1440x900"
+    },
+    {
+      "id": "club-match-sheet",
+      "kind": "pick",
+      "label": "Club Match Sheet",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Printed club fixtures and court-side score sheets",
+      "thesis": "The club’s match sheet, made live and easy to scan.",
+      "palette": ["#f6f7f1", "#19241d", "#36734c", "#e7ebdf"],
+      "materials": ["uncoated score paper", "court green", "inked score marks"],
+      "viewport": "A standard app shell names the facility and session. The queue and live courts lead, with a clear next-player action and a match-sheet rhythm in the typography and status marks.",
+      "risk": "Familiar and effective; avoid making every screen look like a literal printed sheet.",
+      "html": ".impeccable/mocks/decision/club-match-sheet.html",
+      "htmlFrame": "1440x900"
+    },
+    {
+      "id": "challenger-gate-board",
+      "kind": "challenger",
+      "catalogId": "vernacular-ephemera-boarding-pass-and-gate-board",
+      "label": "Gate Board",
+      "verdict": "competitive",
+      "lineage": "Boarding passes and live departure boards",
+      "thesis": "The queue is a live ranking whose changes stay visible.",
+      "palette": ["#f2f3ef", "#181b19", "#dfc83d", "#d9ddd5"],
+      "materials": ["segmented pass", "fixed-column board", "alert ink"],
+      "viewport": "A familiar facility/session shell leads to live court rows and a time-ordered player queue; a court change moves with its row and remains briefly highlighted.",
+      "case": "Strong operational clarity for changing queues; travel imagery is less native to a sports club.",
+      "risk": "Can feel like an airport reskin if the product’s court and player language is not dominant.",
+      "html": ".impeccable/mocks/decision/challenger-gate-board.html",
+      "htmlFrame": "1440x900"
+    },
+    {
+      "id": "challenger-court-wayfinding",
+      "kind": "challenger",
+      "catalogId": "wayfinding-cartography-signage-terminal-yellow-wayfinding",
+      "label": "Court Wayfinding",
+      "verdict": "competitive",
+      "lineage": "Large-format venue wayfinding systems",
+      "thesis": "Every screen makes the next court decision obvious.",
+      "palette": ["#f4d447", "#171a18", "#ffffff", "#e6e5df"],
+      "materials": ["high-contrast sign bands", "humanist type", "direction marks"],
+      "viewport": "The familiar app shell stays intact; clear sign-like court labels and a strong next-step cue help players locate their court and staff move a queue forward.",
+      "case": "Excellent directional clarity; the venue-sign system is less specific to recreational sports than the picked club sheet.",
+      "risk": "Yellow must remain purposeful wayfinding, not fill the whole interface.",
+      "html": ".impeccable/mocks/decision/challenger-court-wayfinding.html",
+      "htmlFrame": "1440x900"
+    },
+    {
+      "id": "challenger-streaming-wall",
+      "kind": "challenger",
+      "catalogId": "pop-culture-shelf-streaming-title-card-wall",
+      "label": "Streaming Catalog",
+      "verdict": "declined",
+      "lineage": "Streaming catalog browsing",
+      "thesis": "A wall of sessions opens detail as each one is focused.",
+      "palette": ["#171918", "#f7f7f2", "#b8d93b"],
+      "materials": ["deep neutral ground", "focused session tile", "compact detail"],
+      "case": "Sessions can be browsed as objects, but a media-wall pattern weakens the live queue task.",
+      "kept": "Focused sessions can reveal useful secondary details without a route change.",
+      "risk": "The poster-wall structure is too browsing-led for live facility operations."
+    },
+    {
+      "id": "challenger-botanical-folio",
+      "kind": "challenger",
+      "catalogId": "editorial-sequence-montage-botanical-folio-season",
+      "label": "Botanical Folio",
+      "verdict": "declined",
+      "lineage": "Registered botanical plates",
+      "thesis": "A measured sequence keeps each court and match in proportion.",
+      "palette": ["#f2eee3", "#292b24", "#9d3e2e"],
+      "materials": ["registered plates", "graphite", "archival paper"],
+      "case": "Precise comparisons help, but botanical language does not identify the sports-club audience.",
+      "kept": "Comparable court views should preserve one consistent scale.",
+      "risk": "The folio’s archival character is too far from a live session."
+    },
+    {
+      "id": "challenger-variable-font",
+      "kind": "challenger",
+      "catalogId": "variable-font-specimen",
+      "label": "Variable Specimen",
+      "verdict": "declined",
+      "lineage": "Interactive type specimens",
+      "thesis": "One live state changes every part of the display in step.",
+      "palette": ["#f8f8f6", "#171918", "#c8dc36"],
+      "materials": ["paper", "ink", "variable type"],
+      "case": "Responsive type is expressive, but font axes add little to queue and court operations.",
+      "kept": "Respect reduced motion and provide settled states for live changes.",
+      "risk": "The typographic interaction is unrelated to the player’s main job."
+    }
+  ],
+  "reroll": {
+    "registers": ["safer", "bolder"]
+  },
+  "canon": true,
+  "canonCard": {
+    "kind": "canon",
+    "label": "The category standard",
+    "thesis": "A clean, familiar sports-facility dashboard, executed with care.",
+    "palette": ["#ffffff", "#151918", "#28744a"],
+    "materials": ["neutral workspace", "standard app controls", "quiet status colour"],
+    "viewport": "A named RallyLoop shell with ordinary session navigation, court status, a queue table, and clear actions.",
+    "risk": "The expected category pattern offers little distinctive sports identity.",
+    "html": ".impeccable/mocks/decision/canon.html",
+    "htmlFrame": "1440x900"
+  },
+  "steer": true
+}

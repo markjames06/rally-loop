@@ -1,0 +1,5 @@
+{
+  "prompt": "RallyLoop facility-management desktop screen at 1440x900. Lead with the facility's session list and make the live open session easy to identify; show court availability and the current next-up players beside it. Use the committed Movement Score world only in IBM Plex typography, score-paper neutrals, ink blocks, and a small mirrored queue/time cue. Keep standard app navigation, familiar data rows, and a real create-session action. The content is illustrative sample data for the comp, not facility evidence. The HTML/CSS source is movement-session-list.html; the PNG is its browser capture.",
+  "source": "HTML/CSS composition captured in Chromium; illustrative sample data",
+  "approved": false
+}

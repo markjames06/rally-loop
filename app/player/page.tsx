@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, CircleDot, ShieldCheck } from "lucide-react";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PlayerMatchHistory } from "@/components/matches/match-history";
@@ -59,17 +60,25 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
     memberships?.filter((membership) => isFacilityRole(membership.role)) ?? [];
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8">
+    <main className="app-page mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8">
       <header className="flex items-center justify-between border-b border-white/10 pb-6">
-        <Link className="text-xl font-extrabold tracking-tight" href="/">
-          Rally<span className="text-lime-300">Loop</span>
+        <Link
+          aria-label="RallyLoop home"
+          className="inline-flex items-center gap-2.5 text-xl font-extrabold tracking-tight"
+          href="/"
+        >
+          <span className="grid size-9 place-items-center rounded-xl bg-[#c4e65d] text-[#19251e]">
+            <CircleDot aria-hidden="true" className="size-5" strokeWidth={2.5} />
+          </span>
+          RallyLoop
         </Link>
         <SignOutButton />
       </header>
 
       <section className="py-12">
-        <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
-          Player account
+        <p className="inline-flex items-center gap-2 rounded-full bg-[#e6edd9] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#45602c]">
+          <CircleDot aria-hidden="true" className="size-3.5" />
+          Player space
         </p>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
           {profile?.display_name
@@ -80,10 +89,11 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
           Signed in as {user.email ?? "your account"}.
         </p>
         <Link
-          className="mt-5 inline-flex min-h-11 items-center rounded-full bg-lime-300 px-5 text-sm font-bold text-slate-950 transition hover:bg-lime-200"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-lime-300 px-5 text-sm font-bold text-slate-950 transition hover:bg-lime-200"
           href="/sessions"
         >
           Browse open sessions
+          <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
         <div className="mt-6">
           <SessionRealtime
@@ -167,21 +177,25 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
 
         {visibleMemberships.length > 0 ? (
           <div className="mt-10">
-            <h2 className="text-lg font-bold text-white">Facility access</h2>
+            <h2 className="inline-flex items-center gap-2 text-lg font-bold text-white">
+              <ShieldCheck aria-hidden="true" className="size-5 text-[#52732f]" />
+              Facility access
+            </h2>
             <ul className="mt-4 space-y-3">
               {visibleMemberships.map(({ facility_id, role }) => (
                 <li
-                  className="flex flex-col justify-between gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:flex-row sm:items-center"
+                  className="flex flex-col justify-between gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-[0_8px_24px_rgba(27,45,31,0.04)] sm:flex-row sm:items-center"
                   key={facility_id}
                 >
                   <span className="text-sm text-slate-300">
                     {role === "admin" ? "Administrator" : "Staff"} access
                   </span>
                   <Link
-                    className="text-sm font-bold text-lime-300 hover:text-lime-200"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-lime-300 hover:text-lime-200"
                     href={`/management/${facility_id}`}
                   >
                     Open management access
+                    <ArrowRight aria-hidden="true" className="size-4" />
                   </Link>
                 </li>
               ))}

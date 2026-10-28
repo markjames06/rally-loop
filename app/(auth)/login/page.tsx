@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { next, reason } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-5 py-12">
+    <main className="app-page auth-page flex min-h-screen items-center justify-center px-5 py-12">
       <AuthForm
         message={getAuthMessage(reason)}
         mode="sign-in"

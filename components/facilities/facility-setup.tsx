@@ -1,12 +1,24 @@
 "use client";
 
+import {
+  Building2,
+  CalendarDays,
+  CircleAlert,
+  CircleCheck,
+  MapPin,
+  Plus,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MatchManager } from "@/components/matches/match-manager";
 import { StaffQueueManager } from "@/components/queue/queue-panel";
+import { useActionToast } from "@/components/ui/toast";
 import {
   deleteCourtAction,
   saveCourtAction,
@@ -59,14 +71,16 @@ const initialState: FacilityActionState = {};
 function ActionMessage({ state }: { state: FacilityActionState }) {
   if (state.error) {
     return (
-      <p className="text-sm text-rose-200" role="alert">
+      <p className="inline-flex items-start gap-2 text-sm text-rose-200" role="alert">
+        <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         {state.error}
       </p>
     );
   }
   if (state.notice) {
     return (
-      <p className="text-sm text-lime-200" role="status">
+      <p className="inline-flex items-start gap-2 text-sm text-lime-200" role="status">
+        <CircleCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         {state.notice}
       </p>
     );
@@ -77,6 +91,7 @@ function ActionMessage({ state }: { state: FacilityActionState }) {
 function FacilitySettingsForm({ facility }: { facility: FacilityRow }) {
   const action = updateFacilityAction.bind(null, facility.id);
   const [state, formAction, pending] = useActionState(action, initialState);
+  useActionToast(state);
 
   return (
     <form action={formAction} className="grid gap-5 sm:grid-cols-2">
@@ -129,7 +144,14 @@ function FacilitySettingsForm({ facility }: { facility: FacilityRow }) {
       </div>
       <div className="flex flex-col justify-end gap-3">
         <Button className="w-full sm:w-fit" disabled={pending} type="submit">
-          {pending ? "Saving..." : "Save facility"}
+          {pending ? (
+            "Saving..."
+          ) : (
+            <>
+              <Save aria-hidden="true" className="size-4" />
+              Save facility
+            </>
+          )}
         </Button>
         <ActionMessage state={state} />
       </div>
@@ -148,6 +170,7 @@ function CourtForm({
 }) {
   const action = saveCourtAction.bind(null, facilityId, court?.id ?? null);
   const [state, formAction, pending] = useActionState(action, initialState);
+  useActionToast(state);
 
   return (
     <form
@@ -199,7 +222,19 @@ function CourtForm({
       ) : null}
       <div className="flex flex-col justify-end gap-3">
         <Button disabled={pending || sports.length === 0} type="submit">
-          {pending ? "Saving..." : court ? "Save court" : "Add court"}
+          {pending ? (
+            "Saving..."
+          ) : court ? (
+            <>
+              <Save aria-hidden="true" className="size-4" />
+              Save court
+            </>
+          ) : (
+            <>
+              <Plus aria-hidden="true" className="size-4" />
+              Add court
+            </>
+          )}
         </Button>
         <ActionMessage state={state} />
       </div>
@@ -216,26 +251,56 @@ function DeleteCourtButton({
 }) {
   const action = deleteCourtAction.bind(null, facilityId, court.id);
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  useActionToast(state);
 
   return (
-    <form
-      action={formAction}
-      onSubmit={(event) => {
-        if (!window.confirm(`Delete ${court.name}? This cannot be undone.`)) {
-          event.preventDefault();
-        }
-      }}
-    >
+    <>
       <Button
-        className="text-rose-200 hover:text-rose-100"
-        disabled={pending}
-        type="submit"
+        className="border-[#e8c8bc] text-[#973f31] hover:bg-[#fff2ed] hover:text-[#87372c]"
+        onClick={() => setDialogOpen(true)}
+        type="button"
         variant="outline"
       >
-        {pending ? "Deleting..." : "Delete court"}
+        <Trash2 aria-hidden="true" className="size-4" />
+        Delete court
       </Button>
-      <ActionMessage state={state} />
-    </form>
+      <Dialog
+        description="Deleting a court cannot be undone. Sessions that use this court may no longer be able to assign matches."
+        onOpenChange={setDialogOpen}
+        open={dialogOpen}
+        title={`Delete ${court.name}?`}
+      >
+        <form action={formAction} className="space-y-4">
+          <div className="rounded-xl border border-[#f0c4b8] bg-[#fff2ed] p-4 text-sm leading-6 text-[#87372c]">
+            This court will be removed from the facility. You can cancel if
+            you&apos;re not sure.
+          </div>
+          <ActionMessage state={state} />
+          <div className="flex flex-col-reverse justify-end gap-2 sm:flex-row">
+            <Button
+              onClick={() => setDialogOpen(false)}
+              type="button"
+              variant="outline"
+            >
+              Keep court
+            </Button>
+            <Button
+              className="bg-[#a33d31] text-white hover:bg-[#8e342b]"
+              disabled={pending}
+              type="submit"
+            >
+              {pending ? "Deleting..." : "Delete court"}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
+      {!dialogOpen ? (
+        <div className="mt-2">
+          <ActionMessage state={state} />
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -257,6 +322,7 @@ function SessionForm({
   const session = value?.session;
   const action = saveSessionAction.bind(null, facilityId, session?.id ?? null);
   const [state, formAction, pending] = useActionState(action, initialState);
+  useActionToast(state);
   const [selectedSportId, setSelectedSportId] = useState(
     session?.sport_id ?? "",
   );
@@ -402,8 +468,18 @@ function SessionForm({
           {pending
             ? "Saving..."
             : session
-              ? "Save session"
-              : "Create session"}
+              ? (
+                <>
+                  <Save aria-hidden="true" className="size-4" />
+                  Save session
+                </>
+              )
+              : (
+                <>
+                  <Plus aria-hidden="true" className="size-4" />
+                  Create session
+                </>
+              )}
         </Button>
         <ActionMessage state={state} />
       </div>
@@ -429,15 +505,21 @@ export function FacilitySetup({
   timezoneValid: boolean;
 }) {
   return (
-    <div className="space-y-10">
+    <div className="flex flex-col gap-8">
       <section
         aria-labelledby="facility-details-heading"
-        className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
+        className="order-3 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-7"
       >
-        <h2 className="text-xl font-bold" id="facility-details-heading">
+        <h2
+          className="inline-flex items-center gap-3 text-xl font-bold"
+          id="facility-details-heading"
+        >
+          <span className="grid size-10 place-items-center rounded-xl bg-[#e6edd9] text-[#45602c]">
+            <Building2 aria-hidden="true" className="size-5" />
+          </span>
           Facility details
         </h2>
-        <p className="mb-6 mt-2 text-sm text-slate-400">
+        <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
           Update the facility information players see with open sessions.
         </p>
         {editable ? (
@@ -458,12 +540,18 @@ export function FacilitySetup({
 
       <section
         aria-labelledby="courts-heading"
-        className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
+        className="order-2 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-7"
       >
-        <h2 className="text-xl font-bold" id="courts-heading">
+        <h2
+          className="inline-flex items-center gap-3 text-xl font-bold"
+          id="courts-heading"
+        >
+          <span className="grid size-10 place-items-center rounded-xl bg-[#e6edd9] text-[#45602c]">
+            <MapPin aria-hidden="true" className="size-5" />
+          </span>
           Courts
         </h2>
-        <p className="mb-6 mt-2 text-sm text-slate-400">
+        <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
           Courts can only be used by sessions for the same sport.
         </p>
         <div className="space-y-4">
@@ -503,14 +591,20 @@ export function FacilitySetup({
 
       <section
         aria-labelledby="sessions-heading"
-        className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
+        className="order-1 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-7"
       >
-        <h2 className="text-xl font-bold" id="sessions-heading">
+        <h2
+          className="inline-flex items-center gap-3 text-xl font-bold"
+          id="sessions-heading"
+        >
+          <span className="grid size-10 place-items-center rounded-xl bg-[#e6edd9] text-[#45602c]">
+            <CalendarDays aria-hidden="true" className="size-5" />
+          </span>
           Sessions
         </h2>
-        <p className="mb-6 mt-2 text-sm text-slate-400">
-          Choose a sport, schedule, status, match size, and compatible courts.
-          Times are saved in {facility.timezone}.
+        <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          Keep the queue moving first. Session settings and court assignment
+          stay close by when you need them. Times use {facility.timezone}.
         </p>
         {!timezoneValid ? (
           <p
@@ -532,27 +626,26 @@ export function FacilitySetup({
           <div className="mb-6 space-y-4">
             {sessions.map((item) => (
               <article
-                className="rounded-xl border border-white/10 p-4"
+                className="rounded-2xl border border-white/10 bg-[#fbfcf8] p-4 sm:p-5"
                 key={item.session.id}
               >
-                <p className="font-semibold">{item.session.name}</p>
-                <p className="mt-1 text-sm text-slate-400">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-bold">{item.session.name}</p>
+                    <p className="mt-1 text-sm text-slate-400">
                   {item.session.status} ·{" "}
                   {formatFacilityDateTime(
                     item.session.starts_at,
                     facility.timezone,
                   )}
-                </p>
-                {editable ? (
-                  <SessionForm
-                    courts={courts}
-                    facilityId={facility.id}
-                    sports={sports}
-                    timezone={facility.timezone}
-                    defaultStartValue={defaultStartValue}
-                    value={item}
-                  />
-                ) : null}
+                    </p>
+                  </div>
+                  {item.session.status === "open" ? (
+                    <span className="rounded-full bg-[#e8f1db] px-3 py-1 text-xs font-bold capitalize text-[#416028]">
+                      Live session
+                    </span>
+                  ) : null}
+                </div>
                 {item.queueEntries === null ? (
                   <p className="mt-4 text-sm text-rose-200" role="alert">
                     This session&apos;s queue could not be loaded.
@@ -585,18 +678,53 @@ export function FacilitySetup({
                     timezone={facility.timezone}
                   />
                 )}
+                {editable ? (
+                  <details className="mt-4 rounded-xl border border-white/10 bg-[#f7f8f3]">
+                    <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-[#3d4b42] marker:hidden">
+                      <span className="inline-flex items-center gap-2">
+                        <CalendarDays
+                          aria-hidden="true"
+                          className="size-4 text-[#52732f]"
+                        />
+                        Session settings
+                      </span>
+                      <span aria-hidden="true" className="text-lg leading-none">
+                        +
+                      </span>
+                    </summary>
+                    <div className="border-t border-[#e1e6dc] p-3 sm:p-4">
+                      <SessionForm
+                        courts={courts}
+                        facilityId={facility.id}
+                        sports={sports}
+                        timezone={facility.timezone}
+                        defaultStartValue={defaultStartValue}
+                        value={item}
+                      />
+                    </div>
+                  </details>
+                ) : null}
               </article>
             ))}
           </div>
         )}
         {editable && timezoneValid ? (
-          <SessionForm
-            courts={courts}
-            facilityId={facility.id}
-            sports={sports}
-            timezone={facility.timezone}
-            defaultStartValue={defaultStartValue}
-          />
+          <div className="mt-6 rounded-2xl border border-dashed border-[#cbd5c1] bg-[#f7f8f3] p-4 sm:p-5">
+            <h3 className="inline-flex items-center gap-2 font-bold">
+              <Plus aria-hidden="true" className="size-4 text-[#52732f]" />
+              Create a session
+            </h3>
+            <p className="mb-4 mt-1 text-sm text-slate-400">
+              Set the sport, time, match size, and courts to open play.
+            </p>
+            <SessionForm
+              courts={courts}
+              facilityId={facility.id}
+              sports={sports}
+              timezone={facility.timezone}
+              defaultStartValue={defaultStartValue}
+            />
+          </div>
         ) : null}
       </section>
     </div>
