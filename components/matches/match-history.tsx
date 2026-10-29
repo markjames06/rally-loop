@@ -23,7 +23,7 @@ function MatchStatus({ status }: { status: string }) {
         ? CircleX
         : CircleDot;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#f3f5ef] px-2.5 py-1 text-xs font-semibold capitalize text-slate-200">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#dce3d8] bg-[#f3f5ef] px-2.5 py-1 text-xs font-semibold capitalize text-[#34483b]">
       <StatusIcon aria-hidden="true" className="size-3.5" />
       {status.replace("_", " ")}
     </span>
@@ -40,7 +40,7 @@ export function SessionMatchHistory({
   return (
     <section
       aria-labelledby="session-match-history-heading"
-      className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-6"
+      className="mt-8 rounded-3xl border border-[#dce3d8] bg-white p-5 sm:p-6"
     >
       <h2
         className="inline-flex items-center gap-2 text-xl font-bold"
@@ -53,17 +53,17 @@ export function SessionMatchHistory({
         <ol className="mt-4 space-y-3">
           {matches.map((match) => (
             <li
-              className="rounded-2xl border border-white/10 bg-[#fbfcf8] p-4"
+              className="rounded-2xl border border-[#dce3d8] bg-[#fbfcf8] p-4"
               key={match.match_id}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="font-semibold text-white">{match.court_name}</p>
+                <p className="font-semibold text-[#20352a]">{match.court_name}</p>
                 <MatchStatus status={match.status} />
               </div>
-              <p className="mt-2 text-sm text-slate-300">
+              <p className="mt-2 text-sm text-[#46554b]">
                 {match.player_names.join(", ") || "Players unavailable"}
               </p>
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-2 text-xs text-[#657268]">
                 {match.status === "completed"
                   ? `Completed ${formatMatchDate(match.completed_at, timezone)}`
                   : match.status === "cancelled"
@@ -74,7 +74,7 @@ export function SessionMatchHistory({
           ))}
         </ol>
       ) : (
-        <p className="mt-3 rounded-xl border border-dashed border-white/10 bg-[#f7f8f3] p-4 text-sm text-slate-400">
+        <p className="mt-3 rounded-xl border border-dashed border-[#dce3d8] bg-[#f7f8f3] p-4 text-sm text-[#657268]">
           No matches have been assigned in this session yet.
         </p>
       )}
@@ -93,7 +93,7 @@ export function PlayerMatchHistory({
       className="player-history mt-10"
     >
       <h2
-        className="inline-flex items-center gap-2 text-lg font-bold text-white"
+        className="inline-flex items-center gap-2 text-lg font-bold text-[#20352a]"
         id="player-match-history-heading"
       >
         <Trophy aria-hidden="true" className="size-5 text-[#52732f]" />
@@ -107,16 +107,16 @@ export function PlayerMatchHistory({
               key={match.match_id}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="font-semibold text-white">{match.session_name}</p>
+                <p className="font-semibold text-[#20352a]">{match.session_name}</p>
                 <MatchStatus status={match.status} />
               </div>
-              <p className="mt-1 text-sm text-slate-300">
+              <p className="mt-1 text-sm text-[#46554b]">
                 {match.facility_name} · {match.court_name}
               </p>
-              <p className="mt-2 text-sm text-slate-300">
+              <p className="mt-2 text-sm text-[#46554b]">
                 {match.player_names.join(", ") || "Players unavailable"}
               </p>
-              <p className="mt-2 inline-flex items-center gap-2 text-xs text-slate-400">
+              <p className="mt-2 inline-flex items-center gap-2 text-xs text-[#657268]">
                 <CalendarClock aria-hidden="true" className="size-3.5" />
                 {match.status === "completed"
                   ? `Completed ${formatMatchDate(
@@ -137,7 +137,7 @@ export function PlayerMatchHistory({
           ))}
         </ol>
       ) : (
-        <p className="mt-3 text-sm text-slate-400">
+        <p className="mt-3 text-sm text-[#657268]">
           Your match history will appear here after you are assigned to a match.
         </p>
       )}

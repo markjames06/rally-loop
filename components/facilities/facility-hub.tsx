@@ -33,6 +33,7 @@ export function FacilityHub({
   const activeSessions = sessions.filter(
     (session) => session.status === "open" || session.status === "paused",
   );
+  const openSessions = activeSessions.filter((session) => session.status === "open");
   const availableCourts = courts.filter((court) => court.status === "available").length;
   const timezoneValid = isValidTimezone(facility.timezone);
 
@@ -60,9 +61,9 @@ export function FacilityHub({
         ) : (
           <>
         <div className="facility-hub-stats" aria-label="Facility status">
-          <div><span>Open sessions</span><strong>{sessions.filter((session) => session.status === "open").length}</strong></div>
+          <div><span>Open sessions</span><strong>{openSessions.length}</strong></div>
           <div><span>Courts available</span><strong>{availableCourts}<small> / {courts.length}</small></strong></div>
-          <div><span>Sessions in progress</span><strong>{activeSessions.length}</strong></div>
+          <div><span>Open or paused</span><strong>{activeSessions.length}</strong></div>
         </div>
 
         <div className="facility-hub-grid">
@@ -76,7 +77,7 @@ export function FacilityHub({
               <ul className="facility-hub-session-list">
                 {activeSessions.slice(0, 3).map((session) => (
                   <li key={session.id}>
-                    <div><strong>{session.name}</strong><span>{timezoneValid ? formatFacilityDateTime(session.starts_at, facility.timezone) : "Time unavailable · timezone needs correction"}</span></div>
+                    <div><Link className="facility-hub-session-link" href={`${base}/sessions/${session.id}`}>{session.name}</Link><span>{timezoneValid ? formatFacilityDateTime(session.starts_at, facility.timezone) : "Time unavailable · timezone needs correction"}</span></div>
                     <span className={`management-status is-${session.status}`}>{session.status}</span>
                   </li>
                 ))}

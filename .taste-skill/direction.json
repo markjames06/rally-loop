@@ -1,15 +1,17 @@
 {
  "version": 1,
  "kind": "app",
- "at": "2026-10-29T16:06:46.159Z",
- "seed": 1865382386,
+ "at": "2026-10-29T17:16:50.946Z",
+ "seed": 904388685,
  "input": {
-  "kind": "community",
-  "brief": "RallyLoop helps players find recreational court sessions and helps facility staff keep live queues and courts moving",
-  "theme": null,
+  "kind": "smb-admin",
+  "brief": "RallyLoop facility queue and court rotation",
+  "theme": "light",
   "screens": [
-   "home",
+   "overview",
    "list",
+   "detail",
+   "inbox",
    "settings"
   ],
   "keep": [
@@ -124,50 +126,81 @@
   "notes": "All three studied screens of this kind used violet, purple or pink as the one hue. The move does not depend on the hue, so the house's violet and indigo ban holds and the library deals a raspberry instead."
  },
  "shell": {
-  "id": "open-plane",
-  "name": "Open plane",
-  "basis": "5 of 23 screens",
+  "id": "ruled-t-frame",
+  "name": "Ruled T-frame",
+  "basis": "4 of 23 screens (3 dark, 1 light)",
   "suits": [
-   "finance",
-   "wallet",
-   "workspace",
+   "community",
    "creator",
-   "analytics"
+   "smb-admin"
   ],
   "numbers": {
-   "sidebarWidth": "230-256 (230, 240, 256 in the study; 280 and 292 with a built-in icon rail)",
-   "separation": "none, or one 1px hairline; the sidebar sits on the page ground or within 1-2% of it",
-   "navPitch": 34,
-   "navRowHeight": 32,
-   "navIcon": "16px outline, about 1.5px stroke",
-   "navLabel": "14px, 400, grey or ink",
-   "activeItem": "neutral grey pill, radius 6-12, inset 8-12px from the sidebar edges (#e9e9e9-#ededed)",
-   "topBar": "none",
-   "canvas": "fluid with a 24-64px gutter, or a centred 1100px column"
+   "sidebarWidth": "210-240",
+   "topBar": "64px with a 1px bottom rule",
+   "rules": "1px; #1a1a1a on #000, #f2f2f2 on white",
+   "navPitch": "34 (dark) or 40 (light)",
+   "switcher": "at the top bar's right end, behind a full-height 1px divider",
+   "contentGutter": "29px from the sidebar rule and the window edge"
   },
-  "blueprint": "The labelled sidebar sits on the page ground with nothing or one hairline between it and the canvas; there is no top bar, and the page header and cards sit straight on the ground about 32-36px from the top. Workspace or account switcher at the top of the sidebar, primary nav on a 34px pitch, groups under 12-13px sentence-case grey labels with 22-56px of air above, utilities and the user row pushed to the bottom. Cards are white on the off-white ground (or the sidebar is white with a 1px border on a #f9fafb canvas). The canvas is fluid with one gutter value, or a centred column for personal homes.",
-  "phone": "The sidebar folds into a 48px top bar holding the screen's name, a menu button that opens a full-screen sheet with the nav and the switcher, and at most one action. Content takes the full width with 16px margins."
+  "blueprint": "A 210-240px sidebar and a 64px top bar share one ground, divided only by 1px rules. The workspace or community switcher sits at the right end of the top bar behind a full-height divider; the sidebar holds the wordmark and the nav on a 34px pitch with sentence-case group labels. On dark, the active item is its label going from #bbb to #fff. The top bar must carry something real (search, the back link and object name, the switcher): two studied screens left about 1070px of it blank and were flagged.",
+  "phone": "The top bar stays at 48-56px with the switcher reduced to its mark; the sidebar becomes a full-screen menu sheet or a bottom bar of four or five destinations."
  },
  "screens": [
   {
-   "name": "home",
-   "pattern": null
+   "name": "overview",
+   "pattern": {
+    "id": "kpi-strip-chart-rail",
+    "name": "KPI strip, main chart and a side rail",
+    "screen": "overview",
+    "kinds": [
+     "creator",
+     "smb-admin",
+     "community",
+     "analytics"
+    ],
+    "basis": "a newsletter home; a community overview",
+    "blueprint": "Title row: a 24px noun or the product's name at 600-700, an optional 14-16px grey line under it, and the one primary action on the right, bottom-aligned with that line. 16-24px below, the scope row: section tabs and the date range in one row of 32-36px controls, or a 48px segmented track with the range select inside its right end. Then a grid of 1fr and a fixed 384px rail with a 24px gap. Main column: one KPI container split by 1px dividers into 3-5 equal cells (14px grey label, 24px value at 400-600, a 12px caption naming the baseline and window), then the main chart card, which is the largest thing on the screen, then the next card, all 16px apart. Rail: 16px headings outside their cards, 8px above each and 16px after the previous card; a recent-items list of 3-5 rows on a 45px pitch with 1px rules, closed by a 30px outlined 'View all' button instead of pagination. The rail starts level with the first card, not with the title.",
+    "phone": "The rail moves below the main column; the KPI container becomes a 2-column grid; tabs scroll inside their own row."
+   }
   },
   {
    "name": "list",
    "pattern": {
-    "id": "count-cards-filter",
-    "name": "Count cards that filter",
+    "id": "table-filter-bar",
+    "name": "Table with tabs and a filter bar",
     "screen": "list",
     "kinds": [
      "community",
+     "devtools",
      "commerce",
+     "support",
+     "smb-admin"
+    ],
+    "basis": "an events back office, a tracks studio, a sessions overview",
+    "blueprint": "Title row: an 18-24px title on the left, at most an outlined secondary and the one primary (36px) on the right. Underline tabs for the list's states on a full-width 1px rule with a 2px indicator as wide as the label; 22-32px below, the toolbar: a search of about 252-316 x 32-36 on the left, the count ('7 events') and the sort on the right. The table sits on the panel or page ground with no card around it: a header of 12-13px grey sentence-case labels with no fill and no rule, rows on a 48-56px pitch for one line or 72-92px with a thumbnail (media height plus 24-32px), 1px rules 3-7% darker than the ground or no rules at all, the identity column given the most width, numbers right-aligned in tabular figures with the unit muted ('5 /10'), one status mark per row and one kebab at the far right. Drop a column that is empty in every row (a blank co-host column left a 300px dead band). On an overview, cap the rows and link to the full list; on the full list, state the total and load more at the end.",
+    "phone": "Rows become two-line items: identity and the key number on line 1, the secondary fields in 13px grey on line 2, the kebab at the right. Tabs scroll in their own row; the search becomes a full-width field."
+   }
+  },
+  {
+   "name": "detail",
+   "pattern": {
+    "id": "tabbed-object-detail",
+    "name": "Tabbed object detail in a sheet",
+    "screen": "detail",
+    "kinds": [
+     "analytics",
+     "smb-admin",
+     "builder",
      "support"
     ],
-    "basis": "an events back office",
-    "blueprint": "Above a list, 3-5 equal count cards (61px tall, 12px padding, a 13px grey label over a 16/600 value, 8px gap) are the type filter: the selected card gets a 1.5px accent border and a pale accent fill, and the list below shows that type only. Zero counts print as '0' in the same style; no deltas, no icons. This is one place where a row of identical small cards is right: the cards are peers and each one does work.",
-    "phone": "The count cards become a horizontally scrolling row of chips with the count inside each, or a select above the list."
+    "basis": "a list's engagement tab; a reports dashboard",
+    "blueprint": "Inside the sheet: a breadcrumb row at 16/600 (the parent in grey, the current page as the h1, a 24px grey type chip after it) with its actions on the right (a text button and an outlined 32px dropdown). Under it, the object's tabs at 14px with a 2px ink underline that runs 8px past the label, on a 1px rule that spans the sheet. 30px below, the filter row: a label above a 300x32 select on the left; the freshness stamp ('Last updated July 21, 2026') and a 40px refresh button on the right, centred on the select's line. Then 3 KPI cards (value 36/400, its label at 16/600 under it, the period in words) and 2 chart cards, all on one 24px gutter so the rows share column lines. Do not stretch a short card to its neighbour's height (it left 250px of dead white) and do not list legend series that have no data.",
+    "phone": "Breadcrumb shortens to a back link and the h1; tabs scroll; KPI cards stack as label-value rows; charts full width."
    }
+  },
+  {
+   "name": "inbox",
+   "pattern": null
   },
   {
    "name": "settings",

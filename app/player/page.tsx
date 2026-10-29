@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { AppShell } from "@/components/layout/app-shell";
-import { AdminFacilityOverview } from "@/components/facilities/admin-overview";
 import { PlayerMatchHistory } from "@/components/matches/match-history";
 import { PlayerActiveSessions } from "@/components/player/active-sessions";
 import { SessionRealtime } from "@/components/realtime/session-realtime";
@@ -62,53 +61,6 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
 
   const visibleMemberships =
     memberships?.filter((membership) => isFacilityRole(membership.role)) ?? [];
-  const adminMembership = visibleMemberships.find(
-    (membership) => membership.role === "admin",
-  );
-  if (adminMembership) {
-    const [facilityResult, sessionsResult, courtsResult] = await Promise.all([
-      supabase
-        .from("facilities")
-        .select("id, name, address, timezone")
-        .eq("id", adminMembership.facility_id)
-        .maybeSingle(),
-      supabase
-        .from("sessions")
-        .select("id, name, status, starts_at")
-        .eq("facility_id", adminMembership.facility_id)
-        .in("status", ["open", "paused"])
-        .order("starts_at", { ascending: true }),
-      supabase
-        .from("courts")
-        .select("id, status")
-        .eq("facility_id", adminMembership.facility_id),
-    ]);
-    if (facilityResult.error) {
-      console.error("Could not load the admin facility overview.", facilityResult.error.code);
-    }
-    if (sessionsResult.error) {
-      console.error("Could not load sessions for the admin overview.", sessionsResult.error.code);
-    }
-    if (courtsResult.error) {
-      console.error("Could not load courts for the admin overview.", courtsResult.error.code);
-    }
-    return (
-      <AppShell
-        facilityName={facilityResult.data?.name}
-        managementHref={`/management/${adminMembership.facility_id}`}
-        managementRole="admin"
-        user={{ name: profile?.display_name, email: user.email }}
-      >
-        <AdminFacilityOverview
-          courts={courtsResult.data ?? []}
-          facility={facilityResult.data}
-          loadError={Boolean(facilityResult.error || sessionsResult.error || courtsResult.error)}
-          reason={reason}
-          sessions={sessionsResult.data ?? []}
-        />
-      </AppShell>
-    );
-  }
   const activeSessionIds = [
     ...new Set((activeQueueEntries ?? []).map((entry) => entry.session_id)),
   ];
@@ -203,8 +155,18 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
     return leftPriority - rightPriority;
   });
 
+  const leadSession = activeSessionCards[0];
+  const finding = leadSession?.match?.status === "in_progress"
+    ? `On court now: ${leadSession.match.court_name}.`
+    : leadSession?.match?.status === "assigned" || leadSession?.queueStatus === "assigned"
+      ? `Up next on ${leadSession.match?.court_name ?? "court"}.`
+      : leadSession?.queuePosition
+        ? `You are #${leadSession.queuePosition} in ${leadSession.session.name}.`
+        : "No active session yet. Find an open game to join.";
+
   return (
     <AppShell
+      facilityName={undefined}
       managementHref={visibleMemberships[0] ? `/management/${visibleMemberships[0].facility_id}` : null}
       managementRole={visibleMemberships[0] && isFacilityRole(visibleMemberships[0].role) ? visibleMemberships[0].role : null}
       user={{ name: profile?.display_name, email: user.email }}
@@ -216,17 +178,19 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
             <h1>
               {profile?.display_name ? `${profile.display_name}’s court` : "Your court"}
             </h1>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              Find a game, follow your place in line, and get back on court.
-            </p>
-            <p className="player-account-meta mt-2">
-              Signed in as {user.email ?? "your account"}.
-            </p>
+            <p className="player-finding">{finding}</p>
           </div>
-          <Link className="player-primary-action" href="/sessions">
-            Browse open sessions
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </Link>
+          {activeSessionCards.length ? (
+            <Link className="player-text-link" href="/sessions">
+              Find another session
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          ) : (
+            <Link className="player-primary-action" href="/sessions">
+              Browse open sessions
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          )}
         </div>
 
         <div className="player-live-area">
@@ -245,9 +209,6 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
                 <h2>No active session yet</h2>
                 <p>Choose an open session to see the courts and join its queue.</p>
               </div>
-              <Link className="player-text-link" href="/sessions">
-                Find a session <ArrowRight aria-hidden="true" className="size-4" />
-              </Link>
             </div>
           )}
         </div>
@@ -270,19 +231,13 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
         </div>
 
         {profileError || !profile ? (
-          <p
-            className="mt-6 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
-            role="alert"
-          >
+          <p className="player-feedback player-feedback-error mt-6" role="alert">
             We could not load your profile. Refresh the page or contact the
             facility administrator.
           </p>
         ) : null}
         {membershipError ? (
-          <p
-            className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
-            role="alert"
-          >
+          <p className="player-feedback player-feedback-error mt-4" role="alert">
             We could not check your facility access. Refresh the page to try
             again.
           </p>
@@ -298,50 +253,38 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
           <PlayerMatchHistory matches={matchHistoryResult.data} />
         )}
         {reason === "forbidden" ? (
-          <p
-            className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100"
-            role="status"
-          >
+          <p className="player-feedback player-feedback-warn mt-4" role="status">
             You do not have staff or administrator access to that facility.
           </p>
         ) : null}
         {reason === "authorization" ? (
-          <p
-            className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
-            role="alert"
-          >
+          <p className="player-feedback player-feedback-error mt-4" role="alert">
             Facility access could not be verified. Please try again.
           </p>
         ) : null}
         {reason === "signout" ? (
-          <p
-            className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
-            role="alert"
-          >
+          <p className="player-feedback player-feedback-error mt-4" role="alert">
             Sign-out did not complete. Please try again.
           </p>
         ) : null}
 
         {visibleMemberships.length > 0 ? (
           <section aria-labelledby="player-facility-access-heading" className="player-secondary-section mt-10">
-            <h2 className="inline-flex items-center gap-2 text-lg font-bold" id="player-facility-access-heading">
-              <ShieldCheck aria-hidden="true" className="size-5 text-[#52732f]" />
-              Facility access
-            </h2>
+            <h2 id="player-facility-access-heading">Facility access</h2>
             <ul className="player-access-list mt-4">
               {visibleMemberships.map(({ facility_id, role }) => (
                 <li
                   className="player-access-row"
                   key={facility_id}
                 >
-                  <span className="text-sm text-slate-300">
-                    {role === "admin" ? "Administrator" : "Staff"} access
+                  <span>
+                    {role === "admin" ? "Administrator" : "Staff"}
                   </span>
                   <Link
-                    className="inline-flex items-center gap-2 text-sm font-bold text-lime-300 hover:text-lime-200"
+                    className="player-text-link"
                     href={`/management/${facility_id}`}
                   >
-                    Open management access
+                    Open facility
                     <ArrowRight aria-hidden="true" className="size-4" />
                   </Link>
                 </li>

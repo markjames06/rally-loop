@@ -41,14 +41,14 @@ const initialState: MatchActionState = {};
 function MatchFeedback({ state }: { state: MatchActionState }) {
   if (state.error) {
     return (
-      <p className="text-sm text-rose-200" role="alert">
+      <p className="text-sm text-rose-800" role="alert">
         {state.error}
       </p>
     );
   }
   if (state.notice) {
     return (
-      <p className="text-sm text-lime-200" role="status">
+      <p className="text-sm text-[#39764d]" role="status">
         {state.notice}
       </p>
     );
@@ -88,12 +88,12 @@ function AssignNextMatchForm({
   return (
     <form
       action={formAction}
-      className="mt-4 grid gap-3 rounded-xl border border-white/10 bg-slate-950/40 p-4 sm:grid-cols-[1fr_1fr_auto]"
+      className="mt-4 grid gap-3 rounded-xl border border-[#dce3d8] bg-white p-4 sm:grid-cols-[1fr_1fr_auto]"
     >
       <label className="space-y-2 text-sm">
-        <span className="block font-medium text-slate-200">Available court</span>
+        <span className="block font-medium text-[#34483b]">Available court</span>
         <select
-          className="h-10 w-full rounded-md border border-input bg-slate-950 px-3 text-sm text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm text-[#20352a] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           defaultValue=""
           name="court_id"
           required
@@ -107,9 +107,9 @@ function AssignNextMatchForm({
         </select>
       </label>
       <label className="space-y-2 text-sm">
-        <span className="block font-medium text-slate-200">Staff notes (optional)</span>
+        <span className="block font-medium text-[#34483b]">Staff notes (optional)</span>
         <input
-          className="h-10 w-full rounded-md border border-input bg-slate-950 px-3 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm text-[#20352a] placeholder:text-[#657268] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           maxLength={500}
           name="notes"
           placeholder="Notes for facility staff"
@@ -136,12 +136,12 @@ function AssignNextMatchForm({
         </Button>
       </div>
       {!availableCourts.length ? (
-        <p className="text-sm text-slate-400 sm:col-span-3">
+        <p className="text-sm text-[#657268] sm:col-span-3">
           No court assigned to this session is currently available.
         </p>
       ) : null}
       {sessionStatus !== "open" ? (
-        <p className="text-sm text-slate-400 sm:col-span-3">
+        <p className="text-sm text-[#657268] sm:col-span-3">
           New matches can only be assigned while the session is open.
         </p>
       ) : null}
@@ -203,7 +203,7 @@ function MatchControls({
   useActionToast(cancelState);
 
   return (
-    <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
+    <div className="mt-4 space-y-3 border-t border-[#dce3d8] pt-4">
       {canStartMatch(status, sessionStatus) ? (
         <form action={startFormAction}>
           <Button disabled={starting} type="submit">
@@ -301,7 +301,7 @@ function MatchControls({
                   Keep match
                 </Button>
                 <Button
-                  className="bg-[#a33d31] text-white hover:bg-[#8e342b]"
+                  className="bg-[#a33d31] text-[#20352a] hover:bg-[#8e342b]"
                   disabled={cancelling}
                   type="submit"
                 >
@@ -332,17 +332,17 @@ function MatchCard({
   const isActive = match.status === "assigned" || match.status === "in_progress";
 
   return (
-    <li className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
+    <li className="rounded-xl border border-[#dce3d8] bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="font-semibold text-white">{match.court_name}</p>
-        <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs font-semibold capitalize text-slate-200">
+        <p className="font-semibold text-[#20352a]">{match.court_name}</p>
+        <span className="rounded-full border border-[#dce3d8] px-2.5 py-1 text-xs font-semibold capitalize text-[#34483b]">
           {match.status.replace("_", " ")}
         </span>
       </div>
-      <p className="mt-2 text-sm text-slate-300">
+      <p className="mt-2 text-sm text-[#46554b]">
         {match.player_names.join(", ") || "Players unavailable"}
       </p>
-      <p className="mt-2 inline-flex items-center gap-2 text-xs text-slate-400">
+      <p className="mt-2 inline-flex items-center gap-2 text-xs text-[#657268]">
         <CalendarClock aria-hidden="true" className="size-3.5" />
         Assigned {formatMatchDate(match.assigned_at, timezone)}
         {match.started_at
@@ -356,7 +356,7 @@ function MatchCard({
           : ""}
       </p>
       {match.notes ? (
-        <p className="mt-2 whitespace-pre-wrap text-sm text-slate-400">
+        <p className="mt-2 whitespace-pre-wrap text-sm text-[#657268]">
           Staff notes: {match.notes}
         </p>
       ) : null}
@@ -400,13 +400,13 @@ export function MatchManager({
   return (
     <section
       aria-label="Match and court management"
-      className="mt-5 rounded-2xl border border-white/10 bg-[#f7f8f3] p-4"
+      className="mt-5 rounded-2xl border border-[#dce3d8] bg-[#f7f8f3] p-4"
     >
       <h3 className="inline-flex items-center gap-2 font-semibold">
         <Trophy aria-hidden="true" className="size-4 text-[#52732f]" />
         Matches and courts
       </h3>
-      <p className="mt-1 text-sm text-slate-400">
+      <p className="mt-1 text-sm text-[#657268]">
         Assigns the next {playersPerMatch} eligible players in FIFO order.
       </p>
       <AssignNextMatchForm
@@ -417,7 +417,7 @@ export function MatchManager({
         sessionStatus={sessionStatus}
       />
       <div className="mt-5">
-        <h4 className="text-sm font-semibold text-slate-200">Active matches</h4>
+        <h4 className="text-sm font-semibold text-[#34483b]">Active matches</h4>
         {activeMatches.length ? (
           <ol className="mt-3 space-y-3">
             {activeMatches.map((match) => (
@@ -432,11 +432,11 @@ export function MatchManager({
             ))}
           </ol>
         ) : (
-          <p className="mt-2 text-sm text-slate-400">No active matches.</p>
+          <p className="mt-2 text-sm text-[#657268]">No active matches.</p>
         )}
       </div>
-      <div className="mt-5 border-t border-white/10 pt-4">
-        <h4 className="text-sm font-semibold text-slate-200">Recent history</h4>
+      <div className="mt-5 border-t border-[#dce3d8] pt-4">
+        <h4 className="text-sm font-semibold text-[#34483b]">Recent history</h4>
         {history.length ? (
           <ol className="mt-3 space-y-3">
             {history.map((match) => (
@@ -451,7 +451,7 @@ export function MatchManager({
             ))}
           </ol>
         ) : (
-          <p className="mt-2 text-sm text-slate-400">No completed or cancelled matches yet.</p>
+          <p className="mt-2 text-sm text-[#657268]">No completed or cancelled matches yet.</p>
         )}
       </div>
     </section>

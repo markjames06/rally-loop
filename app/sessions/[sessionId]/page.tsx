@@ -1,9 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowLeft,
-  CalendarClock,
-  UsersRound,
-} from "lucide-react";
+import { ArrowLeft, CalendarClock, UsersRound } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
@@ -36,7 +32,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
     return (
       <AppShell>
         <main className="app-page session-detail-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
-          <p className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/10 p-5 text-sm text-amber-100">
+          <p className="player-feedback player-feedback-warn mt-4" role="status">
             Session details are unavailable until Supabase is configured.
           </p>
         </main>
@@ -53,10 +49,12 @@ export default async function SessionPage({ params }: SessionPageProps) {
 
   const summary = result.data?.[0];
   const { data: authData, error: authError } = await supabase.auth.getUser();
-  if (authError) {
-    console.warn("Could not verify the current user for the session queue.", authError.message);
+  const isUnauthenticated = authError?.name === "AuthSessionMissingError";
+  const accountError = Boolean(authError && !isUnauthenticated);
+  if (accountError) {
+    console.warn("Could not verify the current user for the session queue.", authError?.message);
   }
-  const user = authError ? null : authData.user;
+  const user = accountError ? null : authData.user;
   const membershipResult = user
     ? await supabase
         .from("facility_members")
@@ -89,13 +87,11 @@ export default async function SessionPage({ params }: SessionPageProps) {
     >
     <main className="app-page session-detail-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
       <div className="mt-6">
-        <SessionRealtime
-          sessionIds={user ? [sessionId] : []}
-        />
+        {user ? <SessionRealtime sessionIds={[sessionId]} /> : null}
       </div>
       {result.data === null ? (
         <p
-          className="mt-10 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-5 text-sm text-rose-100"
+          className="mt-10 rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-800"
           role="alert"
         >
           Session details could not be loaded. Refresh the page to try again.
@@ -103,7 +99,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
       ) : summary ? (
         <article className="session-detail">
           <Link
-            className="inline-flex items-center gap-2 text-sm font-bold text-lime-300 transition hover:text-lime-200"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[#39764d] transition hover:text-[#39764d]"
             href="/sessions"
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
@@ -123,19 +119,19 @@ export default async function SessionPage({ params }: SessionPageProps) {
               <div>
                 <h2 className="font-bold">{summary.facility.name}</h2>
                 {summary.facility.address ? (
-                  <p className="mt-0.5 text-sm text-slate-400">
+                  <p className="mt-0.5 text-sm text-[#657268]">
                     {summary.facility.address}
                   </p>
                 ) : null}
               </div>
             </div>
             <div className="session-facility-body">
-              <p className="inline-flex items-center gap-2 text-sm text-slate-300">
+              <p className="inline-flex items-center gap-2 text-sm text-[#46554b]">
                 <CalendarClock
                   aria-hidden="true"
                   className="size-4 text-[#52732f]"
                 />
-                <span className="font-semibold text-white">Starts:</span>{" "}
+                <span className="font-semibold text-[#20352a]">Starts:</span>{" "}
                 <time dateTime={summary.session.starts_at}>
                   {formatFacilityDateTime(
                     summary.session.starts_at,
@@ -144,12 +140,12 @@ export default async function SessionPage({ params }: SessionPageProps) {
                 </time>
               </p>
               {summary.session.ends_at ? (
-                <p className="mt-2 inline-flex items-center gap-2 text-sm text-slate-300">
+                <p className="mt-2 inline-flex items-center gap-2 text-sm text-[#46554b]">
                   <CalendarClock
                     aria-hidden="true"
                     className="size-4 text-[#52732f]"
                   />
-                  <span className="font-semibold text-white">Ends:</span>{" "}
+                  <span className="font-semibold text-[#20352a]">Ends:</span>{" "}
                   <time dateTime={summary.session.ends_at}>
                     {formatFacilityDateTime(
                       summary.session.ends_at,
@@ -158,26 +154,26 @@ export default async function SessionPage({ params }: SessionPageProps) {
                   </time>
                 </p>
               ) : null}
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-[#657268]">
                 Facility timezone: {summary.facility.timezone}
               </p>
               <dl className="session-detail-facts">
                 <div>
-                  <dt className="text-sm font-medium text-slate-400">
+                  <dt className="text-sm font-medium text-[#657268]">
                     <span className="inline-flex items-center gap-2">
                       <UsersRound aria-hidden="true" className="size-3.5" />
                       Players per match
                     </span>
                   </dt>
-                  <dd className="mt-1 text-white">
+                  <dd className="mt-1 text-[#20352a]">
                     {summary.session.players_per_match}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-slate-400">
+                  <dt className="text-sm font-medium text-[#657268]">
                     Queue policy
                   </dt>
-                  <dd className="mt-1 text-white">First in, first out (FIFO)</dd>
+                  <dd className="mt-1 text-[#20352a]">First in, first out (FIFO)</dd>
                 </div>
               </dl>
             </div>
@@ -192,7 +188,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
                     className="session-court-row"
                     key={court.id}
                   >
-                    <p className="font-semibold text-white">{court.name}</p>
+                    <p className="font-semibold text-[#20352a]">{court.name}</p>
                     <p className={`session-court-status is-${court.status}`}>
                       <span aria-hidden="true" /> {court.status}
                     </p>
@@ -200,14 +196,14 @@ export default async function SessionPage({ params }: SessionPageProps) {
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-sm text-slate-400">
+              <p className="mt-3 text-sm text-[#657268]">
                 Court information is not available for this session.
               </p>
             )}
           </section>
-          {authError ? (
+          {accountError ? (
             <p
-              className="mt-8 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100"
+              className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"
               role="alert"
             >
               We could not verify your account, so the session queue is
@@ -215,7 +211,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
             </p>
           ) : queueResult?.data === null ? (
             <p
-              className="mt-8 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100"
+              className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"
               role="alert"
             >
               The session queue could not be loaded. Refresh the page to try
@@ -234,7 +230,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
           {user ? (
             matchesResult?.data === null ? (
               <p
-                className="mt-8 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100"
+                className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"
                 role="alert"
               >
                 Match history could not be loaded. Refresh the page to try again.

@@ -16,10 +16,12 @@ type AppShellProps = {
   managementRole?: FacilityRole | null;
 };
 
-const primaryNavigation = [
-  { href: "/player", label: "My space", icon: LayoutDashboard, signedIn: true },
-  { href: "/sessions", label: "Open sessions", icon: CalendarDays, signedIn: false },
-] as const;
+type NavItem = {
+  href: string;
+  label: string;
+  shortLabel: string;
+  icon: typeof LayoutDashboard;
+};
 
 export function AppShell({
   children,
@@ -32,44 +34,52 @@ export function AppShell({
   const isAdminContext = managementRole === "admin" && Boolean(managementHref);
   const isStaffContext = managementRole === "staff" && Boolean(managementHref);
   const facilityBase = managementHref ?? "/player";
-  const navigation = isAdminContext
+  const navigation: NavItem[] = isAdminContext
     ? [
-        { href: "/player", label: "My space", icon: LayoutDashboard },
-        { href: facilityBase, label: "Facility overview", icon: Building2 },
-        { href: `${facilityBase}/sessions`, label: "Sessions", icon: CalendarDays },
-        { href: `${facilityBase}/courts`, label: "Courts", icon: CircleDot },
-        { href: `${facilityBase}/details`, label: "Facility details", icon: Building2 },
+        { href: "/player", label: "My court", shortLabel: "Court", icon: LayoutDashboard },
+        { href: facilityBase, label: "Facility", shortLabel: "Facility", icon: Building2 },
+        { href: `${facilityBase}/sessions`, label: "Sessions", shortLabel: "Sessions", icon: CalendarDays },
+        { href: `${facilityBase}/courts`, label: "Courts", shortLabel: "Courts", icon: CircleDot },
+        { href: `${facilityBase}/details`, label: "Details", shortLabel: "Details", icon: Building2 },
       ]
     : isStaffContext
       ? [
-          { href: "/player", label: "My space", icon: LayoutDashboard },
-          { href: `${facilityBase}/sessions`, label: "Facility sessions", icon: CalendarDays },
-          { href: "/sessions", label: "Open play", icon: CircleDot },
-      ]
-    : [
-        ...primaryNavigation.filter((item) => !item.signedIn || user),
-        ...(managementHref
-          ? [{ href: managementHref, label: facilityName || "Facility", icon: Building2 }]
-          : []),
-      ];
+          { href: "/player", label: "My court", shortLabel: "Court", icon: LayoutDashboard },
+          { href: `${facilityBase}/sessions`, label: "Sessions", shortLabel: "Sessions", icon: CalendarDays },
+          { href: "/sessions", label: "Open play", shortLabel: "Play", icon: CircleDot },
+        ]
+      : [
+          ...(user
+            ? [{ href: "/player", label: "My court", shortLabel: "Court", icon: LayoutDashboard }]
+            : []),
+          { href: "/sessions", label: "Open play", shortLabel: "Play", icon: CalendarDays },
+          ...(managementHref
+            ? [{
+                href: managementHref,
+                label: facilityName || "Facility",
+                shortLabel: "Facility",
+                icon: Building2,
+              }]
+            : []),
+        ];
   const pageTitle = pathname.startsWith("/management")
     ? pathname.includes("/sessions/")
       ? "Session operations"
       : pathname.endsWith("/sessions")
-        ? "Facility sessions"
+        ? "Sessions"
         : pathname.endsWith("/courts")
           ? "Courts"
           : pathname.endsWith("/details")
-            ? "Facility details"
-            : facilityName || "Facility overview"
+            ? "Details"
+            : facilityName || "Facility"
     : pathname.startsWith("/sessions/")
-      ? "Session details"
+      ? "Session"
       : pathname === "/sessions"
-        ? "Open sessions"
-        : "My space";
+        ? "Open play"
+        : "My court";
 
   return (
-    <div className={`app-shell${isAdminContext ? " admin-management-shell" : ""}`}>
+    <div className={`app-shell${isAdminContext || isStaffContext ? " admin-management-shell" : ""}`}>
       <aside aria-label="Main navigation" className="app-sidebar">
         <Link aria-label="RallyLoop home" className="app-brand" href="/">
           <span className="app-brand-mark">
@@ -77,19 +87,22 @@ export function AppShell({
           </span>
           <span>RallyLoop</span>
         </Link>
-        <p className="app-nav-heading">{isAdminContext ? "Facility" : "Your court"}</p>
+        <p className="app-nav-heading">{isAdminContext || isStaffContext ? "Facility" : "Play"}</p>
         <nav className="app-nav-list">
           {navigation.map(({ href, label, icon: Icon }) => {
             const targetPath = href.split("#")[0];
-            const active = !href.includes("#") &&
+            const active =
+              !href.includes("#") &&
               (pathname === targetPath ||
-                (targetPath !== "/" && targetPath !== managementHref && pathname.startsWith(`${targetPath}/`)));
+                (targetPath !== "/" &&
+                  targetPath !== managementHref &&
+                  pathname.startsWith(`${targetPath}/`)));
             return (
               <Link
                 aria-current={active ? "page" : undefined}
                 className={`app-nav-link${active ? " is-active" : ""}`}
                 href={href}
-                key={href}
+                key={`${href}-${label}`}
               >
                 <Icon aria-hidden="true" className="size-[18px]" />
                 <span className="truncate">{label}</span>
@@ -131,30 +144,23 @@ export function AppShell({
         <div className="app-shell-content">{children}</div>
 
         <nav aria-label="Mobile navigation" className="app-mobile-nav">
-          {navigation.map(({ href, label, icon: Icon }) => {
+          {navigation.map(({ href, label, shortLabel, icon: Icon }) => {
             const targetPath = href.split("#")[0];
-            const active = !href.includes("#") &&
+            const active =
+              !href.includes("#") &&
               (pathname === targetPath ||
-                (targetPath !== "/" && targetPath !== managementHref && pathname.startsWith(`${targetPath}/`)));
+                (targetPath !== "/" &&
+                  targetPath !== managementHref &&
+                  pathname.startsWith(`${targetPath}/`)));
             return (
               <Link
                 aria-current={active ? "page" : undefined}
                 className={`app-mobile-nav-link${active ? " is-active" : ""}`}
                 href={href}
-                key={href}
+                key={`mobile-${href}-${label}`}
               >
                 <Icon aria-hidden="true" className="size-[18px]" />
-                <span>
-                  {label === "Browse open play" || label === "Open sessions" || label === "Open play"
-                    ? "Open play"
-                    : label === "Facility details"
-                      ? "Details"
-                      : label === "Facility overview"
-                        ? "Overview"
-                        : label === "Facility sessions"
-                          ? "Sessions"
-                      : label}
-                </span>
+                <span>{shortLabel}</span>
               </Link>
             );
           })}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock3, MapPin, UsersRound } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { formatFacilityDateTime } from "@/shared/facilities/datetime";
 import type { PlayerMatchRecord } from "@/server/matches/queries";
@@ -33,38 +33,42 @@ export function PlayerActiveSessions({
     <section aria-labelledby="player-current-session-heading">
       <div className="player-section-heading">
         <div>
-          <h2 id="player-current-session-heading">Your current sessions</h2>
-          <p>Queue and court updates for sessions you have joined.</p>
+          <h2 id="player-current-session-heading">Now</h2>
+          <p>Your place in line and the court you are headed to.</p>
         </div>
         <span className="player-live-label">
-          <span aria-hidden="true" /> Live status
+          <span aria-hidden="true" /> Live
         </span>
       </div>
       <ul className="player-session-list">
         {sessions.map((activeSession) => {
           const { session, facility, match } = activeSession;
+          const onCourt = match?.status === "in_progress";
+          const assigned = match?.status === "assigned" || activeSession.queueStatus === "assigned";
+          const figure = onCourt || assigned
+            ? match?.court_name ?? "Court"
+            : activeSession.queueUnavailable
+              ? "—"
+              : activeSession.queuePosition ?? "—";
+          const figureLabel = onCourt
+            ? "Playing on"
+            : assigned
+              ? "Up next on"
+              : "Place in line";
+
           return (
             <li className="player-session-row" key={session.id}>
+              <div className="player-session-place">
+                <span>{figureLabel}</span>
+                <strong>{figure}</strong>
+              </div>
               <div className="player-session-main">
                 <p className="player-session-name">{session.name}</p>
-                <p className="player-session-facility">
-                  <MapPin aria-hidden="true" className="size-4" />
-                  {facility.name}
-                </p>
+                <p className="player-session-facility">{facility.name}</p>
                 <time className="player-session-time" dateTime={session.starts_at}>
-                  <Clock3 aria-hidden="true" className="size-4" />
                   {formatFacilityDateTime(session.starts_at, facility.timezone)}
                 </time>
-              </div>
-              <div className="player-session-detail">
                 <p className="player-session-status">
-                  {match?.status === "in_progress" ? (
-                    <span className="player-status-dot is-active" aria-hidden="true" />
-                  ) : match?.status === "assigned" ? (
-                    <span className="player-status-dot is-assigned" aria-hidden="true" />
-                  ) : (
-                    <UsersRound aria-hidden="true" className="size-4 text-[#39764d]" />
-                  )}
                   {getPlayerSessionStatusLabel({
                     matchStatus: match?.status,
                     queueStatus: activeSession.queueStatus,
@@ -72,30 +76,13 @@ export function PlayerActiveSessions({
                     queueUnavailable: activeSession.queueUnavailable,
                   })}
                 </p>
-                {match ? (
-                  <p className="player-session-court">
-                    {match.status === "in_progress" ? "Playing on" : "Up next on"} {match.court_name}
-                  </p>
-                ) : activeSession.queueStatus === "assigned" ? (
-                  <p className="player-session-court">
-                    Open the session to check your court assignment.
-                  </p>
-                ) : activeSession.queueUnavailable ? (
-                  <p className="player-session-court">
-                    Open the session to check your queue position.
-                  </p>
-                ) : (
-                  <p className="player-session-court">
-                    Waiting order follows first in, first out.
-                  </p>
-                )}
               </div>
               <Link
                 aria-label={`View ${session.name} session`}
                 className="player-session-link"
                 href={`/sessions/${session.id}`}
               >
-                View session <ArrowRight aria-hidden="true" className="size-4" />
+                Open session <ArrowRight aria-hidden="true" className="size-4" />
               </Link>
             </li>
           );
