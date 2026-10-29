@@ -212,6 +212,22 @@ test("facility administrator can access configuration controls", async ({
   await expect(page.getByRole("button", { name: "Add court" })).toBeVisible();
 });
 
+test("facility administrator sees their own court on the player home", async ({
+  page,
+}) => {
+  test.skip(!hasAdminFixture, "Configure an isolated E2E facility administrator account.");
+
+  await signIn(
+    page,
+    requiredFixture(adminEmail, "E2E_ADMIN_EMAIL"),
+    requiredFixture(adminPassword, "E2E_ADMIN_PASSWORD"),
+    "/player",
+  );
+
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/court/i);
+  await expect(page.getByRole("link", { name: "Open facility" }).first()).toBeVisible();
+});
+
 test("staff assigns, starts, and completes a match", async ({ browser }) => {
   test.skip(
     !hasMatchFixture,
