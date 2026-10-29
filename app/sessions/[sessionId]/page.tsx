@@ -2,8 +2,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   CalendarClock,
-  CircleDot,
-  MapPin,
   UsersRound,
 } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -37,7 +35,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
   if (!hasEnvVars) {
     return (
       <AppShell>
-        <main className="app-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
+        <main className="app-page session-detail-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
           <p className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/10 p-5 text-sm text-amber-100">
             Session details are unavailable until Supabase is configured.
           </p>
@@ -85,9 +83,10 @@ export default async function SessionPage({ params }: SessionPageProps) {
   return (
     <AppShell
       managementHref={managementHref}
+      managementRole={membership && isFacilityRole(membership.role) ? membership.role : null}
       user={authData.user ? { email: authData.user.email } : null}
     >
-    <main className="app-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
+    <main className="app-page session-detail-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
       <div className="mt-6">
         <SessionRealtime
           sessionIds={authData.user && !authError ? [sessionId] : []}
@@ -101,7 +100,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
           Session details could not be loaded. Refresh the page to try again.
         </p>
       ) : summary ? (
-        <article className="py-10">
+        <article className="session-detail">
           <Link
             className="inline-flex items-center gap-2 text-sm font-bold text-lime-300 transition hover:text-lime-200"
             href="/sessions"
@@ -109,18 +108,17 @@ export default async function SessionPage({ params }: SessionPageProps) {
             <ArrowLeft aria-hidden="true" className="size-4" />
             All open sessions
           </Link>
-          <p className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#eaf3e7] px-3 py-1.5 text-xs font-semibold text-[#285b3a]">
-            <CircleDot aria-hidden="true" className="size-3.5" />
-            {summary.sport.name} · Open session
-          </p>
-          <h1 className="mt-4">
+          <div className="session-detail-title-row">
+            <div>
+              <p className="session-detail-kicker">{summary.sport.name} · Open session</p>
+              <h1>
             {summary.session.name}
-          </h1>
-          <section className="mt-8 overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70">
-            <div className="flex items-center gap-3 border-b border-white/10 bg-[#f3f5ef] px-5 py-4 sm:px-7">
-              <span className="grid size-10 place-items-center rounded-xl bg-[#e3edd2] text-[#45602c]">
-                <MapPin aria-hidden="true" className="size-5" />
-              </span>
+              </h1>
+            </div>
+            <span className="session-detail-open"><span aria-hidden="true" /> Queue open</span>
+          </div>
+          <section className="session-facility-panel">
+            <div className="session-facility-heading">
               <div>
                 <h2 className="font-bold">{summary.facility.name}</h2>
                 {summary.facility.address ? (
@@ -130,7 +128,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
                 ) : null}
               </div>
             </div>
-            <div className="p-5 sm:p-7">
+            <div className="session-facility-body">
               <p className="inline-flex items-center gap-2 text-sm text-slate-300">
                 <CalendarClock
                   aria-hidden="true"
@@ -162,8 +160,8 @@ export default async function SessionPage({ params }: SessionPageProps) {
               <p className="mt-2 text-sm text-slate-400">
                 Facility timezone: {summary.facility.timezone}
               </p>
-              <dl className="mt-6 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">
-                <div className="rounded-xl bg-[#f3f5ef] p-4">
+              <dl className="session-detail-facts">
+                <div>
                   <dt className="text-sm font-medium text-slate-400">
                     <span className="inline-flex items-center gap-2">
                       <UsersRound aria-hidden="true" className="size-3.5" />
@@ -174,7 +172,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
                     {summary.session.players_per_match}
                   </dd>
                 </div>
-                <div className="rounded-xl bg-[#f3f5ef] p-4">
+                <div>
                   <dt className="text-sm font-medium text-slate-400">
                     Queue policy
                   </dt>
@@ -184,19 +182,18 @@ export default async function SessionPage({ params }: SessionPageProps) {
             </div>
           </section>
 
-          <section className="mt-8">
+          <section className="session-courts-section">
             <h2 className="text-xl font-bold">Courts in this session</h2>
             {summary.courts.length ? (
               <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                 {summary.courts.map((court) => (
                   <li
-                    className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4"
+                    className="session-court-row"
                     key={court.id}
                   >
                     <p className="font-semibold text-white">{court.name}</p>
-                    <p className="inline-flex items-center gap-2 text-sm text-slate-400">
-                      <span className="size-2 rounded-full bg-[#7ea43c]" />
-                      Status: {court.status}
+                    <p className={`session-court-status is-${court.status}`}>
+                      <span aria-hidden="true" /> {court.status}
                     </p>
                   </li>
                 ))}

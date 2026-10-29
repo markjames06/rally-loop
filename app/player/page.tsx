@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, CircleDot, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { AdminFacilityOverview } from "@/components/facilities/admin-overview";
 import { PlayerMatchHistory } from "@/components/matches/match-history";
+import { PlayerActiveSessions } from "@/components/player/active-sessions";
 import { SessionRealtime } from "@/components/realtime/session-realtime";
 import { requireAuthenticatedUser } from "@/server/auth/guards";
 import { loadMyMatchHistory } from "@/server/matches/queries";
+import { loadSessionQueue } from "@/server/queue/queries";
 import { isFacilityRole } from "@/shared/auth/roles";
 
 export const dynamic = "force-dynamic";
@@ -31,10 +34,11 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
     supabase
       .from("facility_members")
       .select("facility_id, role")
-      .eq("user_id", user.id),
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
     supabase
       .from("queue_entries")
-      .select("session_id")
+      .select("session_id, status")
       .eq("player_id", user.id)
       .in("status", ["waiting", "assigned"]),
     loadMyMatchHistory(supabase),
@@ -58,33 +62,196 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
 
   const visibleMemberships =
     memberships?.filter((membership) => isFacilityRole(membership.role)) ?? [];
+  const adminMembership = visibleMemberships.find(
+    (membership) => membership.role === "admin",
+  );
+  if (adminMembership) {
+    const [facilityResult, sessionsResult, courtsResult] = await Promise.all([
+      supabase
+        .from("facilities")
+        .select("id, name, address, timezone")
+        .eq("id", adminMembership.facility_id)
+        .maybeSingle(),
+      supabase
+        .from("sessions")
+        .select("id, name, status, starts_at")
+        .eq("facility_id", adminMembership.facility_id)
+        .in("status", ["open", "paused"])
+        .order("starts_at", { ascending: true }),
+      supabase
+        .from("courts")
+        .select("id, status")
+        .eq("facility_id", adminMembership.facility_id),
+    ]);
+    if (facilityResult.error) {
+      console.error("Could not load the admin facility overview.", facilityResult.error.code);
+    }
+    if (sessionsResult.error) {
+      console.error("Could not load sessions for the admin overview.", sessionsResult.error.code);
+    }
+    if (courtsResult.error) {
+      console.error("Could not load courts for the admin overview.", courtsResult.error.code);
+    }
+    return (
+      <AppShell
+        facilityName={facilityResult.data?.name}
+        managementHref={`/management/${adminMembership.facility_id}`}
+        managementRole="admin"
+        user={{ name: profile?.display_name, email: user.email }}
+      >
+        <AdminFacilityOverview
+          courts={courtsResult.data ?? []}
+          facility={facilityResult.data}
+          loadError={Boolean(facilityResult.error || sessionsResult.error || courtsResult.error)}
+          reason={reason}
+          sessions={sessionsResult.data ?? []}
+        />
+      </AppShell>
+    );
+  }
+  const activeSessionIds = [
+    ...new Set((activeQueueEntries ?? []).map((entry) => entry.session_id)),
+  ];
+  const [activeSessionsResult, waitingQueueResults] = await Promise.all([
+    activeSessionIds.length
+      ? supabase
+          .from("sessions")
+          .select("id, name, status, starts_at, facility_id")
+          .in("id", activeSessionIds)
+      : Promise.resolve({ data: [], error: null }),
+    Promise.all(
+      (activeQueueEntries ?? [])
+        .filter((entry) => entry.status === "waiting")
+        .map(async (entry) => ({
+          sessionId: entry.session_id,
+          result: await loadSessionQueue(supabase, entry.session_id, user.id),
+        })),
+    ),
+  ]);
+  if (activeSessionsResult.error) {
+    console.error(
+      "Could not load the current user's active session details.",
+      activeSessionsResult.error.code,
+    );
+  }
+
+  const activeSessions = activeSessionsResult.data ?? [];
+  const facilityIds = [...new Set(activeSessions.map((session) => session.facility_id))];
+  const facilitiesResult = facilityIds.length
+    ? await supabase
+        .from("facilities")
+        .select("id, name, timezone")
+        .in("id", facilityIds)
+    : { data: [], error: null };
+  if (facilitiesResult.error) {
+    console.error(
+      "Could not load facility details for the current user's active sessions.",
+      facilitiesResult.error.code,
+    );
+  }
+  const facilitiesById = new Map(
+    (facilitiesResult.data ?? []).map((facility) => [facility.id, facility]),
+  );
+  const activeSessionDetailsUnavailable =
+    activeSessionsResult.error !== null ||
+    activeSessions.length !== activeSessionIds.length ||
+    activeSessions.some((session) => !facilitiesById.has(session.facility_id));
+  const waitingQueueBySessionId = new Map(
+    waitingQueueResults.map(({ sessionId, result }) => [
+      sessionId,
+      result.data,
+    ]),
+  );
+  const activeMatchBySessionId = new Map(
+    (matchHistoryResult.data ?? [])
+      .filter(
+        (match) =>
+          match.status === "assigned" || match.status === "in_progress",
+      )
+      .map((match) => [match.session_id, match]),
+  );
+  const activeSessionCards = activeSessions.flatMap((session) => {
+    const facility = facilitiesById.get(session.facility_id);
+    if (!facility) return [];
+    const queue = waitingQueueBySessionId.get(session.id);
+    const match = activeMatchBySessionId.get(session.id);
+    const queueEntry = (activeQueueEntries ?? []).find(
+      (entry) => entry.session_id === session.id,
+    );
+    return [{
+      session,
+      facility,
+      queuePosition:
+        queue?.entries.find((entry) => entry.isCurrentUser)?.position ?? null,
+      queueUnavailable:
+        queueEntry?.status === "waiting" &&
+        (queue === null || queue === undefined),
+      queueStatus: queueEntry?.status,
+      match,
+    }];
+  }).sort((left, right) => {
+    const leftPriority = left.match?.status === "in_progress"
+      ? 0
+      : left.match?.status === "assigned" || left.queueStatus === "assigned"
+        ? 1
+        : 2;
+    const rightPriority = right.match?.status === "in_progress"
+      ? 0
+      : right.match?.status === "assigned" || right.queueStatus === "assigned"
+        ? 1
+        : 2;
+    return leftPriority - rightPriority;
+  });
 
   return (
     <AppShell
       managementHref={visibleMemberships[0] ? `/management/${visibleMemberships[0].facility_id}` : null}
+      managementRole={visibleMemberships[0] && isFacilityRole(visibleMemberships[0].role) ? visibleMemberships[0].role : null}
       user={{ name: profile?.display_name, email: user.email }}
     >
-    <main className="app-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
-      <section className="py-12">
-        <p className="inline-flex items-center gap-2 rounded-md bg-[#eaf3e7] px-3 py-1.5 text-xs font-semibold text-[#285b3a]">
-          <CircleDot aria-hidden="true" className="size-3.5" />
-          Player space
-        </p>
-        <h1 className="mt-3">
-          {profile?.display_name
-            ? `Good to see you, ${profile.display_name}`
-            : "Your RallyLoop account"}
-        </h1>
-        <p className="mt-3 text-sm text-slate-400">
-          Signed in as {user.email ?? "your account"}.
-        </p>
-        <Link
-          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-lime-300 px-5 text-sm font-bold text-slate-950 transition hover:bg-lime-200"
-          href="/sessions"
-        >
-          Browse open sessions
-          <ArrowRight aria-hidden="true" className="size-4" />
-        </Link>
+    <main className="app-page player-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
+      <section className="player-overview">
+        <div className="player-heading">
+          <div>
+            <h1>
+              {profile?.display_name ? `${profile.display_name}’s court` : "Your court"}
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              Find a game, follow your place in line, and get back on court.
+            </p>
+            <p className="player-account-meta mt-2">
+              Signed in as {user.email ?? "your account"}.
+            </p>
+          </div>
+          <Link className="player-primary-action" href="/sessions">
+            Browse open sessions
+            <ArrowRight aria-hidden="true" className="size-4" />
+          </Link>
+        </div>
+
+        <div className="player-live-area">
+          {activeQueueEntriesError ||
+          activeSessionDetailsUnavailable ||
+          facilitiesResult.error ? (
+            <p className="player-feedback player-feedback-error" role="alert">
+              Your session status could not load. Refresh this page or open
+              Sessions to find your session.
+            </p>
+          ) : activeSessionCards.length ? (
+            <PlayerActiveSessions sessions={activeSessionCards} />
+          ) : (
+            <div className="player-next-session">
+              <div>
+                <h2>No active session yet</h2>
+                <p>Choose an open session to see the courts and join its queue.</p>
+              </div>
+              <Link className="player-text-link" href="/sessions">
+                Find a session <ArrowRight aria-hidden="true" className="size-4" />
+              </Link>
+            </div>
+          )}
+        </div>
+
         <div className="mt-6">
           <SessionRealtime
             sessionIds={
@@ -101,16 +268,6 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
             }
           />
         </div>
-
-        {activeQueueEntriesError ? (
-          <p
-            className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
-            role="alert"
-          >
-            Live updates could not be configured for your active queues.
-            Refresh this page to try again.
-          </p>
-        ) : null}
 
         {profileError || !profile ? (
           <p
@@ -132,7 +289,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
         ) : null}
         {matchHistoryResult.data === null ? (
           <p
-            className="mt-6 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+            className="player-feedback player-feedback-error mt-6"
             role="alert"
           >
             We could not load your match history. Refresh the page to try again.
@@ -166,15 +323,15 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
         ) : null}
 
         {visibleMemberships.length > 0 ? (
-          <div className="mt-10">
-            <h2 className="inline-flex items-center gap-2 text-lg font-bold text-white">
+          <section aria-labelledby="player-facility-access-heading" className="player-secondary-section mt-10">
+            <h2 className="inline-flex items-center gap-2 text-lg font-bold" id="player-facility-access-heading">
               <ShieldCheck aria-hidden="true" className="size-5 text-[#52732f]" />
               Facility access
             </h2>
-            <ul className="mt-4 space-y-3">
+            <ul className="player-access-list mt-4">
               {visibleMemberships.map(({ facility_id, role }) => (
                 <li
-                  className="flex flex-col justify-between gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:flex-row sm:items-center"
+                  className="player-access-row"
                   key={facility_id}
                 >
                   <span className="text-sm text-slate-300">
@@ -190,7 +347,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         ) : null}
       </section>
     </main>

@@ -25,6 +25,11 @@ function getString(formData: FormData, key: string): string {
 
 function revalidateFacilityPages(facilityId: string): void {
   revalidatePath(`/management/${facilityId}`);
+  revalidatePath(`/management/${facilityId}/sessions`);
+  revalidatePath(`/management/${facilityId}/courts`);
+  revalidatePath(`/management/${facilityId}/details`);
+  revalidatePath(`/management/${facilityId}/sessions/[sessionId]`, "page");
+  revalidatePath("/player");
   revalidatePath("/sessions");
 }
 

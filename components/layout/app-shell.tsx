@@ -6,12 +6,14 @@ import { Building2, CalendarDays, CircleDot, LayoutDashboard } from "lucide-reac
 import type { ReactNode } from "react";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import type { FacilityRole } from "@/shared/auth/roles";
 
 type AppShellProps = {
   children: ReactNode;
   user?: { name?: string | null; email?: string | null } | null;
   managementHref?: string | null;
   facilityName?: string | null;
+  managementRole?: FacilityRole | null;
 };
 
 const primaryNavigation = [
@@ -24,16 +26,42 @@ export function AppShell({
   user = null,
   managementHref,
   facilityName,
+  managementRole,
 }: AppShellProps) {
   const pathname = usePathname();
-  const navigation = [
-    ...primaryNavigation.filter((item) => !item.signedIn || user),
-    ...(managementHref
-      ? [{ href: managementHref, label: facilityName || "Facility", icon: Building2 }]
-      : []),
-  ];
+  const isAdminContext = managementRole === "admin" && Boolean(managementHref);
+  const isStaffContext = managementRole === "staff" && Boolean(managementHref);
+  const facilityBase = managementHref ?? "/player";
+  const navigation = isAdminContext
+    ? [
+        { href: "/player", label: "My space", icon: LayoutDashboard },
+        { href: facilityBase, label: "Facility overview", icon: Building2 },
+        { href: `${facilityBase}/sessions`, label: "Sessions", icon: CalendarDays },
+        { href: `${facilityBase}/courts`, label: "Courts", icon: CircleDot },
+        { href: `${facilityBase}/details`, label: "Facility details", icon: Building2 },
+      ]
+    : isStaffContext
+      ? [
+          { href: "/player", label: "My space", icon: LayoutDashboard },
+          { href: `${facilityBase}/sessions`, label: "Facility sessions", icon: CalendarDays },
+          { href: "/sessions", label: "Open play", icon: CircleDot },
+      ]
+    : [
+        ...primaryNavigation.filter((item) => !item.signedIn || user),
+        ...(managementHref
+          ? [{ href: managementHref, label: facilityName || "Facility", icon: Building2 }]
+          : []),
+      ];
   const pageTitle = pathname.startsWith("/management")
-    ? facilityName || "Facility management"
+    ? pathname.includes("/sessions/")
+      ? "Session operations"
+      : pathname.endsWith("/sessions")
+        ? "Facility sessions"
+        : pathname.endsWith("/courts")
+          ? "Courts"
+          : pathname.endsWith("/details")
+            ? "Facility details"
+            : facilityName || "Facility overview"
     : pathname.startsWith("/sessions/")
       ? "Session details"
       : pathname === "/sessions"
@@ -41,7 +69,7 @@ export function AppShell({
         : "My space";
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${isAdminContext ? " admin-management-shell" : ""}`}>
       <aside aria-label="Main navigation" className="app-sidebar">
         <Link aria-label="RallyLoop home" className="app-brand" href="/">
           <span className="app-brand-mark">
@@ -49,10 +77,13 @@ export function AppShell({
           </span>
           <span>RallyLoop</span>
         </Link>
-        <p className="app-nav-heading">Your court</p>
+        <p className="app-nav-heading">{isAdminContext ? "Facility" : "Your court"}</p>
         <nav className="app-nav-list">
           {navigation.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+            const targetPath = href.split("#")[0];
+            const active = !href.includes("#") &&
+              (pathname === targetPath ||
+                (targetPath !== "/" && targetPath !== managementHref && pathname.startsWith(`${targetPath}/`)));
             return (
               <Link
                 aria-current={active ? "page" : undefined}
@@ -101,7 +132,10 @@ export function AppShell({
 
         <nav aria-label="Mobile navigation" className="app-mobile-nav">
           {navigation.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+            const targetPath = href.split("#")[0];
+            const active = !href.includes("#") &&
+              (pathname === targetPath ||
+                (targetPath !== "/" && targetPath !== managementHref && pathname.startsWith(`${targetPath}/`)));
             return (
               <Link
                 aria-current={active ? "page" : undefined}
@@ -110,7 +144,17 @@ export function AppShell({
                 key={href}
               >
                 <Icon aria-hidden="true" className="size-[18px]" />
-                <span>{label === "Open sessions" ? "Sessions" : label}</span>
+                <span>
+                  {label === "Browse open play" || label === "Open sessions" || label === "Open play"
+                    ? "Open play"
+                    : label === "Facility details"
+                      ? "Details"
+                      : label === "Facility overview"
+                        ? "Overview"
+                        : label === "Facility sessions"
+                          ? "Sessions"
+                      : label}
+                </span>
               </Link>
             );
           })}

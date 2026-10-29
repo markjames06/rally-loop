@@ -1,9 +1,6 @@
 import Link from "next/link";
 import {
   ArrowUpRight,
-  CalendarClock,
-  MapPin,
-  UsersRound,
 } from "lucide-react";
 
 import { formatFacilityDateTime } from "@/shared/facilities/datetime";
@@ -13,63 +10,28 @@ export function SessionCard({ summary }: { summary: SessionSummary }) {
   const { session, facility, sport, courts } = summary;
 
   return (
-    <article className="session-card group rounded-xl border border-white/10 bg-slate-900/70 p-5 transition-colors duration-200 hover:border-lime-300/30 sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <article className="session-card">
+      <div className="session-card-top">
+        <p>{sport.name}<span aria-hidden="true"> / </span> Open play</p>
+        <span className="session-card-status"><span aria-hidden="true" /> Open</span>
+      </div>
+      <div className="session-card-main">
         <div>
-          <p className="inline-flex items-center gap-2 text-xs font-semibold text-lime-300">
-            <span className="size-2 rounded-full bg-[#9bbf3d]" />
-            {sport.name}
-          </p>
-          <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">
-            {session.name}
-          </h2>
-          <p className="mt-1 text-sm text-slate-400">{facility.name}</p>
+          <h2>{session.name}</h2>
+          <p className="session-card-facility">{facility.name}{facility.address ? ` · ${facility.address}` : ""}</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-lime-300/20 bg-lime-300/10 px-2.5 py-1 text-xs font-semibold text-lime-200">
-          <span className="size-1.5 rounded-full bg-[#70973a]" />
-          Open
-        </span>
+        <time dateTime={session.starts_at}>
+          {formatFacilityDateTime(session.starts_at, facility.timezone)}
+          <span>{facility.timezone}</span>
+        </time>
       </div>
-      <div className="mt-5 grid gap-3 rounded-lg bg-[#f0f4eb] p-4 text-sm sm:grid-cols-2">
-        <p className="inline-flex items-start gap-2 text-slate-300">
-          <CalendarClock
-            aria-hidden="true"
-            className="mt-0.5 size-4 shrink-0 text-[#52732f]"
-          />
-          <span>
-            <time dateTime={session.starts_at}>
-              {formatFacilityDateTime(session.starts_at, facility.timezone)}
-            </time>
-            <span className="mt-0.5 block text-xs text-slate-500">
-              {facility.timezone}
-            </span>
-          </span>
-        </p>
-        <p className="inline-flex items-start gap-2 text-slate-300">
-          <UsersRound
-            aria-hidden="true"
-            className="mt-0.5 size-4 shrink-0 text-[#52732f]"
-          />
-          <span>
-            {session.players_per_match} players per match
-            <span className="mt-0.5 block text-xs text-slate-500">
-              {courts.length} {courts.length === 1 ? "court" : "courts"} · FIFO
-            </span>
-          </span>
-        </p>
+      <div className="session-card-meta">
+        <span>{session.players_per_match} players per match</span>
+        <span>{courts.length} {courts.length === 1 ? "court" : "courts"}</span>
+        <span>First in, first out</span>
       </div>
-      {facility.address ? (
-        <p className="mt-4 inline-flex items-center gap-2 text-sm text-slate-400">
-          <MapPin aria-hidden="true" className="size-4 shrink-0" />
-          {facility.address}
-        </p>
-      ) : null}
-      <Link
-        className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-lime-300 px-5 text-sm font-semibold text-slate-950 transition hover:bg-lime-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-300 focus-visible:ring-offset-2"
-        href={`/sessions/${session.id}`}
-      >
-        View session
-        <ArrowUpRight aria-hidden="true" className="size-4" />
+      <Link className="session-card-link" href={`/sessions/${session.id}`}>
+        View session <ArrowUpRight aria-hidden="true" className="size-4" />
       </Link>
     </article>
   );

@@ -161,6 +161,8 @@ export async function skipQueueEntryAction(
   }
 
   revalidatePath(`/management/${facilityId}`);
+  revalidatePath(`/management/${facilityId}/sessions`);
+  revalidatePath(`/management/${facilityId}/sessions/${sessionId}`);
   revalidateQueuePaths(sessionId);
   return { notice: "Player skipped and the reason was recorded." };
 }

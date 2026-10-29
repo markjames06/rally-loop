@@ -25,6 +25,8 @@ The product is used on the web by players and facility staff during recreational
 ## Capabilities and Constraints
 
 - Players can find sessions, view public queue and court status, join or leave their own waiting queue entry, and view their own queue position and match history.
+- The player home surfaces active queue position or assigned/in-progress match status with a direct link to the session.
+- Facility management puts live session work first, then courts and facility details, with section links for quick access.
 - Staff can manage sessions and queues, assign eligible players to courts, and start, complete, or cancel matches.
 - Facility administrators can configure facilities, sports, courts, and sessions.
 - Queue ordering is FIFO. Staff confirm court assignment; assignment is not automatic.

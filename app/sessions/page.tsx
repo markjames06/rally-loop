@@ -1,5 +1,3 @@
-import { CircleDot } from "lucide-react";
-
 import { AppShell } from "@/components/layout/app-shell";
 import { SessionCard } from "@/components/sessions/session-card";
 import { hasEnvVars } from "@/shared/lib/utils";
@@ -49,19 +47,21 @@ export default async function SessionsPage() {
   return (
     <AppShell
       managementHref={managementHref}
+      managementRole={membership && isFacilityRole(membership.role) ? membership.role : null}
       user={authData.user ? { email: authData.user.email } : null}
     >
-    <main className="app-page mx-auto min-h-screen max-w-6xl px-1 sm:px-4">
-      <section className="py-10 sm:py-12">
-        <p className="inline-flex items-center gap-2 rounded-md bg-[#eaf3e7] px-3 py-1.5 text-xs font-semibold text-[#285b3a]">
-          <CircleDot aria-hidden="true" className="size-3.5" />
-          Find your next game
-        </p>
-        <h1 className="mt-4">Open sessions</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+    <main className="app-page open-sessions-page mx-auto min-h-screen max-w-6xl px-1 sm:px-4">
+      <section className="open-sessions-content">
+        <div className="open-sessions-heading">
+          <div>
+            <p className="open-sessions-kicker">RallyLoop · Community play</p>
+            <h1>Find your next game</h1>
+          </div>
+          <p className="open-sessions-intro">
           Browse active sessions, find a game, and follow queue and match
           updates as they happen.
-        </p>
+          </p>
+        </div>
 
         {result.data === null ? (
           <p
@@ -71,21 +71,27 @@ export default async function SessionsPage() {
             Open sessions could not be loaded. Refresh the page to try again.
           </p>
         ) : result.data.length === 0 ? (
-          <div className="mt-8 rounded-xl border border-white/10 bg-slate-900/70 p-6">
-            <h2 className="font-semibold text-white">No open sessions right now</h2>
+          <div className="open-sessions-empty">
+            <h2>No open sessions right now</h2>
             <p className="mt-2 text-sm text-slate-400">
               Check back later or ask your facility administrator about the
               next session.
             </p>
           </div>
         ) : (
-          <ul className="mt-8 grid gap-5 md:grid-cols-2">
+          <>
+            <div className="open-sessions-list-heading">
+              <h2>Playing soon</h2>
+              <span>{result.data.length} {result.data.length === 1 ? "session" : "sessions"}</span>
+            </div>
+            <ul className="open-sessions-list">
             {result.data.map((summary) => (
               <li key={summary.session.id}>
                 <SessionCard summary={summary} />
               </li>
             ))}
           </ul>
+          </>
         )}
       </section>
     </main>

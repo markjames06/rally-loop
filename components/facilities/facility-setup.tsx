@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRight,
   Building2,
   CalendarDays,
   CircleAlert,
@@ -14,6 +15,7 @@ import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MatchManager } from "@/components/matches/match-manager";
@@ -59,11 +61,9 @@ type SessionRow = Pick<
   | "queue_policy"
 >;
 
-type SessionWithCourts = {
+export type SessionWithCourts = {
   session: SessionRow;
   courtIds: string[];
-  queueEntries: WaitingQueueEntry[] | null;
-  matches: SessionMatchRecord[] | null;
 };
 
 const initialState: FacilityActionState = {};
@@ -175,7 +175,7 @@ function CourtForm({
   return (
     <form
       action={formAction}
-      className="grid gap-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4 sm:grid-cols-[1fr_1fr_1fr_auto]"
+      className="grid gap-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4 lg:grid-cols-[1fr_1fr_1fr_auto]"
     >
       <div className="space-y-2">
         <Label htmlFor={`court-name-${court?.id ?? "new"}`}>Court name</Label>
@@ -239,6 +239,34 @@ function CourtForm({
         <ActionMessage state={state} />
       </div>
     </form>
+  );
+}
+
+function CourtFormDialog({
+  facilityId,
+  sports,
+  court,
+}: {
+  facilityId: string;
+  sports: SportRow[];
+  court?: CourtRow;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)} type="button" variant={court ? "outline" : "default"}>
+        {court ? "Edit court" : <><Plus aria-hidden="true" /> Add court</>}
+      </Button>
+      <Dialog
+        description={court ? "Update the court name, sport, and availability." : "Add a court to this facility. You can assign it to compatible sessions."}
+        onOpenChange={setOpen}
+        open={open}
+        title={court ? `Edit ${court.name}` : "Add a court"}
+      >
+        <CourtForm court={court} facilityId={facilityId} sports={sports} />
+      </Dialog>
+    </>
   );
 }
 
@@ -487,6 +515,48 @@ function SessionForm({
   );
 }
 
+export function SessionFormDialog({
+  facilityId,
+  timezone,
+  defaultStartValue,
+  sports,
+  courts,
+  value,
+}: {
+  facilityId: string;
+  timezone: string;
+  defaultStartValue: string;
+  sports: SportRow[];
+  courts: CourtRow[];
+  value?: SessionWithCourts;
+}) {
+  const [open, setOpen] = useState(false);
+  const session = value?.session;
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)} type="button" variant={session ? "outline" : "default"}>
+        {session ? "Edit settings" : <><Plus aria-hidden="true" /> New session</>}
+      </Button>
+      <Dialog
+        description={session ? "Update session timing, queue settings, and courts." : "Choose a sport, time, match size, and courts for play."}
+        onOpenChange={setOpen}
+        open={open}
+        title={session ? `Edit ${session.name}` : "Create a session"}
+      >
+        <SessionForm
+          courts={courts}
+          defaultStartValue={defaultStartValue}
+          facilityId={facilityId}
+          sports={sports}
+          timezone={timezone}
+          value={value}
+        />
+      </Dialog>
+    </>
+  );
+}
+
 export function FacilitySetup({
   facility,
   sports,
@@ -495,6 +565,8 @@ export function FacilitySetup({
   editable,
   defaultStartValue,
   timezoneValid,
+  section,
+  sessionOperationsBaseHref,
 }: {
   facility: FacilityRow;
   sports: SportRow[];
@@ -503,103 +575,20 @@ export function FacilitySetup({
   editable: boolean;
   defaultStartValue: string;
   timezoneValid: boolean;
+  section: "sessions" | "courts" | "details";
+  sessionOperationsBaseHref: string;
 }) {
   return (
     <div className="flex flex-col gap-8">
-      <section
-        aria-labelledby="facility-details-heading"
-        className="order-3 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
-      >
-        <h2
-          className="inline-flex items-center gap-3 text-xl font-bold"
-          id="facility-details-heading"
-        >
-          <span className="grid size-10 place-items-center rounded-xl bg-[#e6edd9] text-[#45602c]">
-            <Building2 aria-hidden="true" className="size-5" />
-          </span>
-          Facility details
-        </h2>
-        <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-          Update the facility information players see with open sessions.
-        </p>
-        {editable ? (
-          <FacilitySettingsForm facility={facility} />
-        ) : (
-          <dl className="grid gap-4 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="text-slate-400">Address</dt>
-              <dd className="mt-1 text-slate-100">{facility.address ?? "Not set"}</dd>
-            </div>
-            <div>
-              <dt className="text-slate-400">Timezone</dt>
-              <dd className="mt-1 text-slate-100">{facility.timezone}</dd>
-            </div>
-          </dl>
-        )}
-      </section>
-
-      <section
-        aria-labelledby="courts-heading"
-        className="order-2 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
-      >
-        <h2
-          className="inline-flex items-center gap-3 text-xl font-bold"
-          id="courts-heading"
-        >
-          <span className="grid size-10 place-items-center rounded-xl bg-[#e6edd9] text-[#45602c]">
-            <MapPin aria-hidden="true" className="size-5" />
-          </span>
-          Courts
-        </h2>
-        <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-          Courts can only be used by sessions for the same sport.
-        </p>
-        <div className="space-y-4">
-          {courts.length === 0 ? (
-            <p className="text-sm text-slate-400">
-              {editable
-                ? "No courts yet. Add the first court for this facility."
-                : "No courts have been configured for this facility."}
-            </p>
-          ) : editable ? (
-            courts.map((court) => (
-              <div className="space-y-3" key={court.id}>
-                <CourtForm court={court} facilityId={facility.id} sports={sports} />
-                <DeleteCourtButton court={court} facilityId={facility.id} />
-              </div>
-            ))
-          ) : (
-            <ul className="space-y-2">
-              {courts.map((court) => (
-                <li
-                  className="rounded-xl border border-white/10 px-4 py-3 text-sm"
-                  key={court.id}
-                >
-                  {court.name} ·{" "}
-                  {sports.find((sport) => sport.id === court.sport_id)?.name ??
-                    "Unknown sport"}{" "}
-                  · {court.status}
-                </li>
-              ))}
-            </ul>
-          )}
-          {editable ? (
-            <CourtForm facilityId={facility.id} sports={sports} />
-          ) : null}
-        </div>
-      </section>
-
+      {section === "sessions" ? (
       <section
         aria-labelledby="sessions-heading"
-        className="order-1 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
+        id="management-sessions"
+        tabIndex={-1}
+        className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
       >
-        <h2
-          className="inline-flex items-center gap-3 text-xl font-bold"
-          id="sessions-heading"
-        >
-          <span className="grid size-10 place-items-center rounded-xl bg-[#e6edd9] text-[#45602c]">
-            <CalendarDays aria-hidden="true" className="size-5" />
-          </span>
+        <h2 className="inline-flex items-center gap-2 text-lg font-semibold" id="sessions-heading">
+          <CalendarDays aria-hidden="true" className="size-4 text-slate-400" />
           Sessions
         </h2>
         <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
@@ -640,84 +629,35 @@ export function FacilitySetup({
                   )}
                     </p>
                   </div>
-                  {item.session.status === "open" ? (
-                    <span className="rounded-full bg-[#e8f1db] px-3 py-1 text-xs font-bold capitalize text-[#416028]">
-                      Live session
-                    </span>
+                  <span className={`management-status is-${item.session.status}`}>
+                    {item.session.status.replaceAll("_", " ")}
+                  </span>
+                </div>
+                <div className="management-session-actions">
+                  <Link href={`${sessionOperationsBaseHref}/${item.session.id}`}>
+                    Queue and match controls <ArrowRight aria-hidden="true" className="size-4" />
+                  </Link>
+                  {editable ? (
+                    <SessionFormDialog
+                      courts={courts}
+                      defaultStartValue={defaultStartValue}
+                      facilityId={facility.id}
+                      sports={sports}
+                      timezone={facility.timezone}
+                      value={item}
+                    />
                   ) : null}
                 </div>
-                {item.queueEntries === null ? (
-                  <p className="mt-4 text-sm text-rose-200" role="alert">
-                    This session&apos;s queue could not be loaded.
-                  </p>
-                ) : (
-                  <StaffQueueManager
-                    entries={item.queueEntries}
-                    facilityId={facility.id}
-                    sessionId={item.session.id}
-                  />
-                )}
-                {item.matches === null ? (
-                  <p className="mt-4 text-sm text-rose-200" role="alert">
-                    This session&apos;s matches could not be loaded.
-                  </p>
-                ) : (
-                  <MatchManager
-                    courts={courts
-                      .filter((court) => item.courtIds.includes(court.id))
-                      .map((court) => ({
-                        id: court.id,
-                        name: court.name,
-                        status: court.status,
-                      }))}
-                    facilityId={facility.id}
-                    matches={item.matches}
-                    playersPerMatch={item.session.players_per_match}
-                    sessionId={item.session.id}
-                    sessionStatus={item.session.status}
-                    timezone={facility.timezone}
-                  />
-                )}
-                {editable ? (
-                  <details className="mt-4 rounded-xl border border-white/10 bg-[#f7f8f3]">
-                    <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-[#3d4b42] marker:hidden">
-                      <span className="inline-flex items-center gap-2">
-                        <CalendarDays
-                          aria-hidden="true"
-                          className="size-4 text-[#52732f]"
-                        />
-                        Session settings
-                      </span>
-                      <span aria-hidden="true" className="text-lg leading-none">
-                        +
-                      </span>
-                    </summary>
-                    <div className="border-t border-[#e1e6dc] p-3 sm:p-4">
-                      <SessionForm
-                        courts={courts}
-                        facilityId={facility.id}
-                        sports={sports}
-                        timezone={facility.timezone}
-                        defaultStartValue={defaultStartValue}
-                        value={item}
-                      />
-                    </div>
-                  </details>
-                ) : null}
               </article>
             ))}
           </div>
         )}
         {editable && timezoneValid ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-[#cbd5c1] bg-[#f7f8f3] p-4 sm:p-5">
-            <h3 className="inline-flex items-center gap-2 font-bold">
-              <Plus aria-hidden="true" className="size-4 text-[#52732f]" />
-              Create a session
-            </h3>
-            <p className="mb-4 mt-1 text-sm text-slate-400">
-              Set the sport, time, match size, and courts to open play.
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[#dfe6db] pt-5">
+            <p className="text-sm text-slate-500">
+              Set the sport, time, match size, and courts for a new session.
             </p>
-            <SessionForm
+            <SessionFormDialog
               courts={courts}
               facilityId={facility.id}
               sports={sports}
@@ -727,6 +667,155 @@ export function FacilitySetup({
           </div>
         ) : null}
       </section>
+      ) : null}
+
+      {section === "courts" ? (
+      <section
+        aria-labelledby="courts-heading"
+        id="management-courts"
+        tabIndex={-1}
+        className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
+      >
+        <h2 className="inline-flex items-center gap-2 text-lg font-semibold" id="courts-heading">
+          <MapPin aria-hidden="true" className="size-4 text-slate-400" />
+          Courts
+        </h2>
+        <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          Courts can only be used by sessions for the same sport.
+        </p>
+        <div className="space-y-4">
+          {courts.length === 0 ? (
+            <p className="text-sm text-slate-400">
+              {editable
+                ? "No courts yet. Add the first court for this facility."
+                : "No courts have been configured for this facility."}
+            </p>
+          ) : (
+            courts.map((court) => (
+              <div className="management-court-row" key={court.id}>
+                <div>
+                  <p className="font-semibold">{court.name}</p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {sports.find((sport) => sport.id === court.sport_id)?.name ?? "Unknown sport"}
+                  </p>
+                </div>
+                <span className={`management-status is-${court.status}`}>{court.status}</span>
+                {editable ? (
+                  <div className="management-row-actions">
+                    <CourtFormDialog court={court} facilityId={facility.id} sports={sports} />
+                    <DeleteCourtButton court={court} facilityId={facility.id} />
+                  </div>
+                ) : <span />}
+              </div>
+            ))
+          )}
+          {editable ? <CourtFormDialog facilityId={facility.id} sports={sports} /> : null}
+        </div>
+      </section>
+      ) : null}
+
+      {section === "details" ? (
+      <section
+        aria-labelledby="facility-details-heading"
+        id="management-details"
+        tabIndex={-1}
+        className="rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
+      >
+        <h2 className="inline-flex items-center gap-2 text-lg font-semibold" id="facility-details-heading">
+          <Building2 aria-hidden="true" className="size-4 text-slate-400" />
+          Facility details
+        </h2>
+        <p className="mb-6 mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          Update the facility information players see with open sessions.
+        </p>
+        {editable ? (
+          <FacilitySettingsForm facility={facility} />
+        ) : (
+          <dl className="grid gap-4 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-slate-400">Address</dt>
+              <dd className="mt-1 text-slate-100">{facility.address ?? "Not set"}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-400">Timezone</dt>
+              <dd className="mt-1 text-slate-100">{facility.timezone}</dd>
+            </div>
+          </dl>
+        )}
+      </section>
+      ) : null}
     </div>
+  );
+}
+
+export function FacilitySessionOperations({
+  facilityId,
+  facilityTimezone,
+  sessionTimeLabel,
+  session,
+  courts,
+  queueEntries,
+  matches,
+  editable,
+  sports,
+  defaultStartValue,
+}: {
+  facilityId: string;
+  facilityTimezone: string;
+  sessionTimeLabel: string;
+  session: SessionWithCourts;
+  courts: CourtRow[];
+  queueEntries: WaitingQueueEntry[] | null;
+  matches: SessionMatchRecord[] | null;
+  editable: boolean;
+  sports: SportRow[];
+  defaultStartValue: string;
+}) {
+  return (
+    <section className="facility-session-operations">
+      <header className="facility-session-operations-heading">
+        <div>
+          <span className={`management-status is-${session.session.status}`}>
+            {session.session.status}
+          </span>
+          <h1>{session.session.name}</h1>
+          <p>{sessionTimeLabel}</p>
+        </div>
+        {editable ? (
+          <SessionFormDialog
+            courts={courts}
+            defaultStartValue={defaultStartValue}
+            facilityId={facilityId}
+            sports={sports}
+            timezone={facilityTimezone}
+            value={session}
+          />
+        ) : null}
+      </header>
+      {queueEntries === null ? (
+        <p className="mt-5 rounded-xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-200" role="alert">
+          This session&apos;s queue could not be loaded. Refresh the page to try again.
+        </p>
+      ) : (
+        <StaffQueueManager entries={queueEntries} facilityId={facilityId} sessionId={session.session.id} />
+      )}
+      {matches === null ? (
+        <p className="mt-5 rounded-xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-200" role="alert">
+          This session&apos;s matches could not be loaded. Refresh the page to try again.
+        </p>
+      ) : (
+        <MatchManager
+          courts={courts
+            .filter((court) => session.courtIds.includes(court.id))
+            .map(({ id, name, status }) => ({ id, name, status }))}
+          facilityId={facilityId}
+          matches={matches}
+          playersPerMatch={session.session.players_per_match}
+          sessionId={session.session.id}
+          sessionStatus={session.session.status}
+          timezone={facilityTimezone}
+        />
+      )}
+    </section>
   );
 }

@@ -88,7 +88,10 @@ export function PlayerMatchHistory({
   matches: PlayerMatchRecord[];
 }) {
   return (
-    <section aria-labelledby="player-match-history-heading" className="mt-10">
+    <section
+      aria-labelledby="player-match-history-heading"
+      className="player-history mt-10"
+    >
       <h2
         className="inline-flex items-center gap-2 text-lg font-bold text-white"
         id="player-match-history-heading"
@@ -97,10 +100,10 @@ export function PlayerMatchHistory({
         My match history
       </h2>
       {matches.length ? (
-        <ol className="mt-4 space-y-3">
+        <ol className="player-history-list mt-4">
           {matches.map((match) => (
             <li
-              className="rounded-2xl border border-white/10 bg-slate-900/70 p-4"
+              className="player-history-row"
               key={match.match_id}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
