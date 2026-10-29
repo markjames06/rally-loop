@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CircleDot, ShieldCheck } from "lucide-react";
 
-import { SignOutButton } from "@/components/auth/sign-out-button";
+import { AppShell } from "@/components/layout/app-shell";
 import { PlayerMatchHistory } from "@/components/matches/match-history";
 import { SessionRealtime } from "@/components/realtime/session-realtime";
 import { requireAuthenticatedUser } from "@/server/auth/guards";
@@ -60,29 +60,19 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
     memberships?.filter((membership) => isFacilityRole(membership.role)) ?? [];
 
   return (
-    <main className="app-page mx-auto min-h-screen max-w-5xl px-5 py-10 sm:px-8">
-      <header className="flex items-center justify-between border-b border-white/10 pb-6">
-        <Link
-          aria-label="RallyLoop home"
-          className="inline-flex items-center gap-2.5 text-xl font-extrabold tracking-tight"
-          href="/"
-        >
-          <span className="grid size-9 place-items-center rounded-xl bg-[#c4e65d] text-[#19251e]">
-            <CircleDot aria-hidden="true" className="size-5" strokeWidth={2.5} />
-          </span>
-          RallyLoop
-        </Link>
-        <SignOutButton />
-      </header>
-
+    <AppShell
+      managementHref={visibleMemberships[0] ? `/management/${visibleMemberships[0].facility_id}` : null}
+      user={{ name: profile?.display_name, email: user.email }}
+    >
+    <main className="app-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
       <section className="py-12">
-        <p className="inline-flex items-center gap-2 rounded-full bg-[#e6edd9] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#45602c]">
+        <p className="inline-flex items-center gap-2 rounded-md bg-[#eaf3e7] px-3 py-1.5 text-xs font-semibold text-[#285b3a]">
           <CircleDot aria-hidden="true" className="size-3.5" />
           Player space
         </p>
-        <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <h1 className="mt-3">
           {profile?.display_name
-            ? `Good to see you, ${profile.display_name}.`
+            ? `Good to see you, ${profile.display_name}`
             : "Your RallyLoop account"}
         </h1>
         <p className="mt-3 text-sm text-slate-400">
@@ -184,7 +174,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
             <ul className="mt-4 space-y-3">
               {visibleMemberships.map(({ facility_id, role }) => (
                 <li
-                  className="flex flex-col justify-between gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-[0_8px_24px_rgba(27,45,31,0.04)] sm:flex-row sm:items-center"
+                  className="flex flex-col justify-between gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4 sm:flex-row sm:items-center"
                   key={facility_id}
                 >
                   <span className="text-sm text-slate-300">
@@ -204,5 +194,6 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
         ) : null}
       </section>
     </main>
+    </AppShell>
   );
 }

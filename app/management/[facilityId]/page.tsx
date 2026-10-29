@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, CircleDot } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { notFound } from "next/navigation";
 
-import { SignOutButton } from "@/components/auth/sign-out-button";
+import { AppShell } from "@/components/layout/app-shell";
 import { FacilitySetup } from "@/components/facilities/facility-setup";
 import { SessionRealtime } from "@/components/realtime/session-realtime";
 import { requireFacilityRole } from "@/server/auth/guards";
@@ -122,21 +122,12 @@ export default async function ManagementPage({
     : false;
 
   return (
-    <main className="app-page mx-auto min-h-screen max-w-7xl px-5 py-8 sm:px-8 lg:px-10">
-      <header className="flex items-center justify-between border-b border-white/10 pb-5">
-        <Link
-          aria-label="RallyLoop home"
-          className="inline-flex items-center gap-2.5 text-xl font-extrabold tracking-tight"
-          href="/"
-        >
-          <span className="grid size-9 place-items-center rounded-xl bg-[#c4e65d] text-[#19251e]">
-            <CircleDot aria-hidden="true" className="size-5" strokeWidth={2.5} />
-          </span>
-          RallyLoop
-        </Link>
-        <SignOutButton />
-      </header>
-
+    <AppShell
+      facilityName={facility?.name}
+      managementHref={`/management/${facilityId}`}
+      user={{ email: user.email }}
+    >
+    <main className="app-page mx-auto min-h-screen max-w-7xl px-1 sm:px-4">
       <div className="mt-6">
         <SessionRealtime
           sessionIds={(sessions ?? [])
@@ -148,10 +139,10 @@ export default async function ManagementPage({
       <section className="py-8 sm:py-10">
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
+            <p className="text-xs font-semibold text-lime-300">
               Facility management
             </p>
-            <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h1 className="mt-3">
               {facility?.name ?? "Facility setup"}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
@@ -208,5 +199,6 @@ export default async function ManagementPage({
         </Link>
       </footer>
     </main>
+    </AppShell>
   );
 }

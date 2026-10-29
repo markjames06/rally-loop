@@ -47,9 +47,9 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
         Back to RallyLoop
       </Link>
 
-      <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-[0_24px_70px_rgba(27,45,31,0.12)] sm:p-8">
+      <div className="auth-card p-6 sm:p-8">
         <div className="mb-6 flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-[#c4e65d] text-[#19251e]">
+          <span className="auth-brand-mark">
             <CircleDot aria-hidden="true" className="size-6" strokeWidth={2.5} />
           </span>
           <div>
@@ -59,7 +59,7 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
             </p>
           </div>
         </div>
-        <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white">
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white">
           {isSignUp ? "Join RallyLoop" : "Welcome back"}
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-400">
@@ -107,7 +107,7 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
               </Label>
               <Input
                 autoComplete="nickname"
-                className="h-11 border-white/10 bg-slate-950/70 text-white placeholder:text-slate-500"
+                className="h-11"
                 id="display_name"
                 maxLength={80}
                 minLength={2}
@@ -125,10 +125,9 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
             </Label>
             <Input
               autoComplete="email"
-              className="h-11 border-white/10 bg-slate-950/70 text-white placeholder:text-slate-500"
+              className="h-11"
               id="email"
               name="email"
-              placeholder="you@example.com"
               required
               type="email"
             />
@@ -141,7 +140,7 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
             </Label>
             <Input
               autoComplete={isSignUp ? "new-password" : "current-password"}
-              className="h-11 border-white/10 bg-slate-950/70 text-white placeholder:text-slate-500"
+              className="h-11"
               id="password"
               maxLength={128}
               minLength={8}
@@ -157,7 +156,7 @@ export function AuthForm({ mode, nextPath, message }: AuthFormProps) {
           </div>
 
           <Button
-            className="h-11 w-full rounded-full bg-lime-300 font-bold text-slate-950 hover:bg-lime-200"
+            className="auth-submit h-11 w-full rounded-md font-semibold"
             disabled={pending}
             type="submit"
           >

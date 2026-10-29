@@ -1,246 +1,138 @@
-import { ArrowDown, ArrowUpRight, CircleDot, Clock3, UsersRound } from "lucide-react";
 import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
-
-const steps = [
-  {
-    number: "01",
-    icon: CircleDot,
-    title: "Find your session",
-    description:
-      "See what is happening at your club and choose the game that fits your day.",
-  },
-  {
-    number: "02",
-    icon: UsersRound,
-    title: "Get in the rotation",
-    description:
-      "A clear, shared line keeps everyone on the same page and ready to play.",
-  },
-  {
-    number: "03",
-    icon: Clock3,
-    title: "Play more together",
-    description:
-      "Know when a court is ready, so less time is spent wondering what is next.",
-  },
-];
+import {
+  ArrowRight,
+  CircleDot,
+} from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="marketing-page">
-      <header
-        className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12"
-        id="top"
-      >
-        <Link aria-label="RallyLoop home" className="flex items-center gap-3" href="/">
-          <span className="grid size-10 place-items-center rounded-xl bg-lime-300 text-slate-950">
-            <CircleDot aria-hidden="true" className="size-6" strokeWidth={2.5} />
+    <main className="marketing-page" id="top">
+      <header className="marketing-header">
+        <Link aria-label="RallyLoop home" className="marketing-brand" href="/">
+          <span className="marketing-brand-mark">
+            <CircleDot aria-hidden="true" className="size-5" strokeWidth={2.5} />
           </span>
-          <span className="text-xl font-extrabold tracking-tight text-white">
-            Rally<span className="text-lime-300">Loop</span>
-          </span>
+          <span>RallyLoop</span>
         </Link>
-
-        <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-medium text-slate-300 lg:flex">
-          <Link className="transition hover:text-white" href="/sessions">
-            Open sessions
-          </Link>
-          <a className="transition hover:text-white" href="#how-it-works">
-            How it works
-          </a>
-          <a className="transition hover:text-white" href="#built-for-play">
-            Built for play
-          </a>
+        <nav aria-label="Main navigation" className="marketing-nav">
+          <Link href="/sessions">Open sessions</Link>
+          <a href="#how-it-works">How it works</a>
         </nav>
-
-        <div className="flex items-center gap-3">
-          <Link
-            className="hidden text-sm font-semibold text-slate-300 transition hover:text-white sm:inline"
-            href="/login"
-          >
-            Sign in
+        <div className="marketing-actions">
+          <Link className="marketing-signin" href="/login">Sign in</Link>
+          <Link className="marketing-button" href="/signup">
+            Get started <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
-          <Button
-            asChild
-            className="h-10 rounded-full bg-lime-300 px-5 font-bold text-slate-950 hover:bg-lime-200"
-          >
-            <Link href="/signup">
-              Get started
-              <ArrowUpRight aria-hidden="true" />
-            </Link>
-          </Button>
         </div>
       </header>
 
-      <section className="relative isolate overflow-hidden">
-        <div aria-hidden="true" className="hero-glow pointer-events-none absolute inset-0 -z-10" />
-        <div className="mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-12 lg:pb-28 lg:pt-14">
-          <div className="max-w-2xl">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-lime-200">
-              <span className="size-2 rounded-full bg-lime-300" />
-              Your next game starts here
-            </div>
-            <h1 className="text-balance text-5xl font-black leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
-              Every game.
-              <br />
-              <span className="text-lime-300">One queue.</span>
-            </h1>
-            <p className="mt-7 max-w-xl text-pretty text-lg leading-8 text-slate-300 sm:text-xl">
-              Less waiting around. More time on court. RallyLoop brings
-              players, sessions, and court rotations together in one simple
-              place.
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button
-                asChild
-                className="h-12 rounded-full bg-lime-300 px-6 text-base font-bold text-slate-950 hover:bg-lime-200"
-              >
-                <Link href="/sessions">
-                  Browse open sessions
-                  <ArrowUpRight aria-hidden="true" />
-                </Link>
-              </Button>
-              <Link
-                className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 px-6 text-sm font-semibold text-white transition hover:border-white/35 hover:bg-white/5"
-                href="/login"
-              >
-                I already have an account
-              </Link>
-            </div>
-            <p className="mt-5 text-xs font-medium tracking-wide text-slate-500">
-              PICKLEBALL <span className="px-2 text-lime-300">/</span> BADMINTON{" "}
-              <span className="px-2 text-lime-300">/</span> TENNIS
-            </p>
+      <section className="marketing-hero">
+        <div className="marketing-hero-copy">
+          <h1>More play. Less wait.</h1>
+          <p className="marketing-lede">
+            RallyLoop gives players and clubs one clear place to find sessions,
+            follow the queue, and keep courts moving.
+          </p>
+          <div className="marketing-hero-actions">
+            <Link className="marketing-button marketing-button-large" href="/sessions">
+              Browse open sessions <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+            <Link className="marketing-text-link" href="/login">I already have an account</Link>
           </div>
+          <p className="marketing-sports">Pickleball / Badminton / Tennis</p>
+        </div>
 
-          <div className="relative mx-auto w-full max-w-[540px]">
-            <div
-              aria-hidden="true"
-              className="absolute -left-7 top-16 size-20 rounded-full border border-lime-300/25 sm:-left-10 sm:size-28"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute -right-4 bottom-12 size-14 rounded-full bg-sky-300/10 blur-xl sm:-right-8 sm:size-24"
-            />
-            <div className="court-card relative aspect-[1.02] overflow-hidden rounded-[2rem] border border-white/10 p-4 shadow-2xl shadow-black/30 sm:p-6">
-              <div className="flex items-center justify-between px-2 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                <span>Game on</span>
-                <span className="flex items-center gap-2 text-lime-300">
-                  <span className="size-2 animate-pulse rounded-full bg-lime-300" />
-                  Ready to play
-                </span>
-              </div>
-              <div
-                aria-label="Illustration of a green court with a ball"
-                className="court-art relative mt-4 flex h-[calc(100%-2.5rem)] items-center justify-center overflow-hidden rounded-[1.5rem] border border-white/15"
-                role="img"
-              >
-                <div aria-hidden="true" className="court-line court-outline" />
-                <div aria-hidden="true" className="court-line court-center-line" />
-                <div aria-hidden="true" className="court-line court-service-top" />
-                <div aria-hidden="true" className="court-line court-service-bottom" />
-                <div aria-hidden="true" className="court-net" />
-                <div aria-hidden="true" className="ball-shadow" />
-                <div aria-hidden="true" className="court-ball">
-                  <span />
-                </div>
-                <div className="absolute bottom-5 left-5 rounded-2xl border border-white/15 bg-slate-950/75 px-4 py-3 backdrop-blur-md sm:bottom-7 sm:left-7">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                    The best part?
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-white sm:text-base">
-                    You&apos;re up next.
-                  </p>
-                </div>
-                <div className="absolute right-4 top-4 rounded-full bg-lime-300 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-950 sm:right-6 sm:top-6">
-                  Your club, in sync
-                </div>
-              </div>
+        <div className="court-illustration" role="img" aria-label="Court diagram with a ball and next-up queue position">
+          <div className="court-caption">
+            <span>One shared view</span>
+            <span className="court-ready"><span aria-hidden="true" /> Courts in play</span>
+          </div>
+          <div className="court-board">
+            <div aria-hidden="true" className="court-outline" />
+            <div aria-hidden="true" className="court-center-line" />
+            <div aria-hidden="true" className="court-service-line court-service-line-top" />
+            <div aria-hidden="true" className="court-service-line court-service-line-bottom" />
+            <div aria-hidden="true" className="court-net-line" />
+            <div aria-hidden="true" className="court-ball"><span /></div>
+            <div className="court-status-note">
+              <span className="court-status-label">Your place in line</span>
+              <strong>Up next</strong>
             </div>
           </div>
         </div>
       </section>
 
-      <section
-        className="border-y border-white/[0.08] bg-white/[0.025]"
-        id="how-it-works"
-      >
-        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
-          <div className="mb-12 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
-                The RallyLoop rhythm
-              </p>
-              <h2 className="mt-4 max-w-xl text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                From “who&apos;s next?” to game on.
-              </h2>
+      <section className="marketing-rhythm" id="how-it-works">
+        <div className="marketing-section-heading">
+          <h2>One clear view for every role.</h2>
+          <p>Players see where they stand. Staff can see which court is ready and move the next group into play.</p>
+        </div>
+        <div className="product-previews">
+          <article className="product-preview">
+            <div className="preview-heading">
+              <h3>Find a session</h3>
+              <p>Example player view</p>
             </div>
-            <p className="max-w-sm text-sm leading-6 text-slate-400">
-              A clearer way to keep recreational play moving—built around the
-              people who show up to play.
-            </p>
-          </div>
+            <div className="preview-session-card">
+              <div className="preview-session-top">
+                <span>Pickleball</span>
+                <span className="preview-status is-open">Open</span>
+              </div>
+              <strong>Evening open play</strong>
+              <p>Tonight / 6:00 pm</p>
+              <div className="preview-session-footer">
+                <span>4 players per match</span>
+                <Link href="/sessions">View session <ArrowRight aria-hidden="true" className="size-3.5" /></Link>
+              </div>
+            </div>
+          </article>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            {steps.map(({ number, icon: Icon, title, description }) => (
-              <article
-                className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 sm:p-7"
-                key={number}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="grid size-11 place-items-center rounded-2xl bg-lime-300/10 text-lime-300">
-                    <Icon aria-hidden="true" className="size-5" />
-                  </span>
-                  <span className="text-sm font-bold tabular-nums text-slate-600">
-                    {number}
-                  </span>
-                </div>
-                <h3 className="mt-8 text-lg font-bold text-white">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-400">
-                  {description}
-                </p>
-              </article>
-            ))}
-          </div>
+          <article className="product-preview">
+            <div className="preview-heading">
+              <h3>See your place</h3>
+              <p>Example queue view</p>
+            </div>
+            <div className="preview-queue-card">
+              <div className="preview-queue-title">
+                <strong>Waiting queue</strong>
+                <span>First in, first out</span>
+              </div>
+              <div className="preview-queue-row"><span className="preview-position">1</span><span>You</span><span className="preview-status is-waiting">Waiting</span></div>
+              <div className="preview-queue-row"><span className="preview-position">2</span><span>Next player</span><span className="preview-muted">Joined</span></div>
+              <div className="preview-queue-note">Your position updates as the line moves.</div>
+            </div>
+          </article>
+
+          <article className="product-preview product-preview-wide">
+            <div className="preview-heading">
+              <h3>Keep courts moving</h3>
+              <p>Example staff view</p>
+            </div>
+            <div className="preview-court-card">
+              <div className="preview-court-title"><strong>Session courts</strong><span>Live session</span></div>
+              <div className="preview-court-row"><span className="preview-court-mark is-playing" /><span><strong>Court 1</strong><small>Match in progress</small></span><span className="preview-status is-playing-label">In play</span></div>
+              <div className="preview-court-row"><span className="preview-court-mark is-ready" /><span><strong>Court 2</strong><small>Ready for the next match</small></span><span className="preview-status is-ready-label">Available</span></div>
+            </div>
+          </article>
         </div>
       </section>
 
-      <section
-        className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 py-16 sm:px-8 md:flex-row md:items-center lg:px-12 lg:py-20"
-        id="built-for-play"
-      >
+      <section className="marketing-footer-cta">
         <div>
-          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-lime-300">
-            More rally. Less wait.
-          </p>
-          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-            Make every court day a little smoother.
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-            Made for the clubs and communities that bring people together
-            through play.
-          </p>
+          <h2>Find your next session.</h2>
+          <p>Browse open games and see the court details before you join.</p>
         </div>
-        <a
-          className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-lime-300 transition hover:text-lime-200"
-          href="#top"
-        >
-          Back to top
-          <ArrowDown aria-hidden="true" className="size-4 rotate-180" />
-        </a>
+        <Link className="marketing-button" href="/sessions">
+          Browse sessions <ArrowRight aria-hidden="true" className="size-4" />
+        </Link>
       </section>
 
-      <footer className="border-t border-white/[0.08]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
-          <p className="font-bold text-slate-300">
-            Rally<span className="text-lime-300">Loop</span>
-            <span className="px-2 text-slate-700">/</span>
-            Every Game. One Queue.
-          </p>
-          <p>Made for good games and good company.</p>
-        </div>
+      <footer className="marketing-footer">
+        <Link aria-label="RallyLoop home" className="marketing-brand" href="/">
+          <span className="marketing-brand-mark"><CircleDot aria-hidden="true" className="size-4" /></span>
+          <span>RallyLoop</span>
+        </Link>
+        <p>Every game. One queue.</p>
       </footer>
     </main>
   );
