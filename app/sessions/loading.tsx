@@ -1,17 +1,15 @@
+import { AppShell } from "@/components/layout/app-shell";
+
 export default function SessionsLoading() {
   return (
-    <main
-      aria-label="Loading open sessions"
-      aria-live="polite"
-      className="app-page mx-auto min-h-screen max-w-6xl px-5 py-10 sm:px-8"
-      role="status"
-    >
-      <div className="h-12 border-b border-white/10" />
-      <div className="mt-12 h-8 w-56 animate-pulse rounded bg-white/10" />
-      <div className="mt-8 grid gap-5 md:grid-cols-2">
-        <div className="h-56 animate-pulse rounded-3xl bg-white/5" />
-        <div className="h-56 animate-pulse rounded-3xl bg-white/5" />
-      </div>
-    </main>
+    <AppShell>
+      <main aria-label="Loading open sessions" aria-live="polite" className="app-page mx-auto min-h-screen max-w-6xl px-1 sm:px-4" role="status">
+        <div aria-hidden="true" className="loading-skeleton mt-8 h-8 w-56 rounded-md" />
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          <div aria-hidden="true" className="loading-skeleton h-56 rounded-xl" />
+          <div aria-hidden="true" className="loading-skeleton h-56 rounded-xl" />
+        </div>
+      </main>
+    </AppShell>
   );
 }

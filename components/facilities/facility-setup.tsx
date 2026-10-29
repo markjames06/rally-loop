@@ -508,7 +508,7 @@ export function FacilitySetup({
     <div className="flex flex-col gap-8">
       <section
         aria-labelledby="facility-details-heading"
-        className="order-3 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-7"
+        className="order-3 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
       >
         <h2
           className="inline-flex items-center gap-3 text-xl font-bold"
@@ -540,7 +540,7 @@ export function FacilitySetup({
 
       <section
         aria-labelledby="courts-heading"
-        className="order-2 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-7"
+        className="order-2 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
       >
         <h2
           className="inline-flex items-center gap-3 text-xl font-bold"
@@ -591,7 +591,7 @@ export function FacilitySetup({
 
       <section
         aria-labelledby="sessions-heading"
-        className="order-1 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-7"
+        className="order-1 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-7"
       >
         <h2
           className="inline-flex items-center gap-3 text-xl font-bold"

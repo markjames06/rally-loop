@@ -88,7 +88,7 @@ export function QueuePanel({
   return (
     <section
       aria-labelledby="queue-heading"
-      className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-6"
+      className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-6"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
@@ -192,7 +192,7 @@ export function QueuePanel({
               className="flex items-center gap-4 py-3"
               key={entry.entryId}
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#e8efd9] font-mono text-sm font-bold text-[#3e5b24]">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#e8efd9] text-sm font-semibold tabular-nums text-[#3e5b24]">
                 {entry.position}
               </span>
               <span className="min-w-0 flex-1 truncate text-sm text-slate-200">

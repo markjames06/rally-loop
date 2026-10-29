@@ -40,7 +40,7 @@ export function SessionMatchHistory({
   return (
     <section
       aria-labelledby="session-match-history-heading"
-      className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-[0_14px_42px_rgba(27,45,31,0.05)] sm:p-6"
+      className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-5 sm:p-6"
     >
       <h2
         className="inline-flex items-center gap-2 text-xl font-bold"
@@ -100,7 +100,7 @@ export function PlayerMatchHistory({
         <ol className="mt-4 space-y-3">
           {matches.map((match) => (
             <li
-              className="rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-[0_8px_24px_rgba(27,45,31,0.04)]"
+              className="rounded-2xl border border-white/10 bg-slate-900/70 p-4"
               key={match.match_id}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
