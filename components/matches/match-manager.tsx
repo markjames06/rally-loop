@@ -60,7 +60,7 @@ function formatMatchDate(value: string | null, timezone: string): string {
   if (!value) {
     return "Not recorded";
   }
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: timezone,

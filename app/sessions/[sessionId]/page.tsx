@@ -54,13 +54,14 @@ export default async function SessionPage({ params }: SessionPageProps) {
   const summary = result.data?.[0];
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError) {
-    console.error("Could not verify the current user for the session queue.", authError.code);
+    console.warn("Could not verify the current user for the session queue.", authError.message);
   }
-  const membershipResult = authData.user
+  const user = authError ? null : authData.user;
+  const membershipResult = user
     ? await supabase
         .from("facility_members")
         .select("facility_id, role")
-        .eq("user_id", authData.user.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle()
@@ -73,9 +74,9 @@ export default async function SessionPage({ params }: SessionPageProps) {
     ? `/management/${membership.facility_id}`
     : null;
   const [queueResult, matchesResult] =
-    summary && authData.user
+    summary && user
       ? await Promise.all([
-          loadSessionQueue(supabase, sessionId, authData.user.id),
+          loadSessionQueue(supabase, sessionId, user.id),
           loadSessionMatches(supabase, sessionId),
         ])
       : [null, null];
@@ -84,12 +85,12 @@ export default async function SessionPage({ params }: SessionPageProps) {
     <AppShell
       managementHref={managementHref}
       managementRole={membership && isFacilityRole(membership.role) ? membership.role : null}
-      user={authData.user ? { email: authData.user.email } : null}
+      user={user ? { email: user.email } : null}
     >
     <main className="app-page session-detail-page mx-auto min-h-screen max-w-5xl px-1 sm:px-4">
       <div className="mt-6">
         <SessionRealtime
-          sessionIds={authData.user && !authError ? [sessionId] : []}
+          sessionIds={user ? [sessionId] : []}
         />
       </div>
       {result.data === null ? (
@@ -226,10 +227,11 @@ export default async function SessionPage({ params }: SessionPageProps) {
               entries={queueResult?.data?.entries ?? []}
               myEntry={queueResult?.data?.myEntry ?? null}
               sessionId={sessionId}
-              signedIn={Boolean(authData.user)}
+              signedIn={Boolean(user)}
+              timezone={summary.facility.timezone}
             />
           )}
-          {authData.user && !authError ? (
+          {user ? (
             matchesResult?.data === null ? (
               <p
                 className="mt-8 rounded-2xl border border-rose-300/20 bg-rose-300/10 p-4 text-sm text-rose-100"

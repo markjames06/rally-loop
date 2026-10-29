@@ -91,6 +91,6 @@ npm run build
 
 ## Supabase and shadcn/ui
 
-The app was scaffolded from the official Supabase `with-supabase` Next.js starter. It uses the official `@supabase/ssr` cookie-based client pattern and initialized shadcn/ui configuration in `components.json`. Supabase session refresh is skipped until the public URL and publishable key are set.
+The app was scaffolded from the official Supabase `with-supabase` Next.js starter. It uses the official `@supabase/ssr` cookie-based client pattern, refreshes sessions through the Next.js `proxy.ts` request hook when Supabase is configured, and includes initialized shadcn/ui configuration in `components.json`. Session refresh is skipped until the public URL and publishable key are set.
 
 See the [Supabase Next.js SSR guide](https://supabase.com/docs/guides/auth/server-side/nextjs) and the [shadcn/ui Next.js guide](https://ui.shadcn.com/docs/installation/next) for future configuration or component additions.

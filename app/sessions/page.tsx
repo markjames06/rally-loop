@@ -24,13 +24,14 @@ export default async function SessionsPage() {
   const supabase = await createClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError) {
-    console.error("Could not verify the current user for session navigation.", authError.code);
+    console.warn("Could not verify the current user for session navigation.", authError.message);
   }
-  const membershipResult = authData.user
+  const user = authError ? null : authData.user;
+  const membershipResult = user
     ? await supabase
         .from("facility_members")
         .select("facility_id, role")
-        .eq("user_id", authData.user.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle()
@@ -48,7 +49,7 @@ export default async function SessionsPage() {
     <AppShell
       managementHref={managementHref}
       managementRole={membership && isFacilityRole(membership.role) ? membership.role : null}
-      user={authData.user ? { email: authData.user.email } : null}
+      user={user ? { email: user.email } : null}
     >
     <main className="app-page open-sessions-page mx-auto min-h-screen max-w-6xl px-1 sm:px-4">
       <section className="open-sessions-content">

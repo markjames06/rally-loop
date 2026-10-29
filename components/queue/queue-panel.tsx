@@ -27,6 +27,7 @@ import { canRejoinQueue, canWithdrawEntry } from "@/shared/queue/rules";
 
 type QueuePanelProps = {
   sessionId: string;
+  timezone: string;
   entries: WaitingQueueEntry[];
   myEntry: MyQueueEntry | null;
   signedIn: boolean;
@@ -63,6 +64,7 @@ function QueueFeedback({
 
 export function QueuePanel({
   sessionId,
+  timezone,
   entries,
   myEntry,
   signedIn,
@@ -207,9 +209,10 @@ export function QueuePanel({
                 className="text-xs text-slate-500"
                 dateTime={entry.joinedAt}
               >
-                {new Intl.DateTimeFormat(undefined, {
+                {new Intl.DateTimeFormat("en-US", {
                   hour: "numeric",
                   minute: "2-digit",
+                  timeZone: timezone,
                 }).format(new Date(entry.joinedAt))}
               </time>
             </li>
