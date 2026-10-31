@@ -1,23 +1,17 @@
 {
  "version": 1,
  "kind": "app",
- "at": "2026-10-29T17:16:50.946Z",
- "seed": 904388685,
+ "at": "2026-10-30T13:30:38.309Z",
+ "seed": 1055382446,
  "input": {
   "kind": "smb-admin",
-  "brief": "RallyLoop facility queue and court rotation",
-  "theme": "light",
+  "brief": "Sports facility management with live session controls, queue operations, and court assignment",
+  "theme": null,
   "screens": [
    "overview",
-   "list",
-   "detail",
-   "inbox",
-   "settings"
+   "list"
   ],
-  "keep": [
-   "palette",
-   "type"
-  ],
+  "keep": [],
   "style": "accent-ladder"
  },
  "style": {
@@ -179,53 +173,6 @@
     "basis": "an events back office, a tracks studio, a sessions overview",
     "blueprint": "Title row: an 18-24px title on the left, at most an outlined secondary and the one primary (36px) on the right. Underline tabs for the list's states on a full-width 1px rule with a 2px indicator as wide as the label; 22-32px below, the toolbar: a search of about 252-316 x 32-36 on the left, the count ('7 events') and the sort on the right. The table sits on the panel or page ground with no card around it: a header of 12-13px grey sentence-case labels with no fill and no rule, rows on a 48-56px pitch for one line or 72-92px with a thumbnail (media height plus 24-32px), 1px rules 3-7% darker than the ground or no rules at all, the identity column given the most width, numbers right-aligned in tabular figures with the unit muted ('5 /10'), one status mark per row and one kebab at the far right. Drop a column that is empty in every row (a blank co-host column left a 300px dead band). On an overview, cap the rows and link to the full list; on the full list, state the total and load more at the end.",
     "phone": "Rows become two-line items: identity and the key number on line 1, the secondary fields in 13px grey on line 2, the kebab at the right. Tabs scroll in their own row; the search becomes a full-width field."
-   }
-  },
-  {
-   "name": "detail",
-   "pattern": {
-    "id": "tabbed-object-detail",
-    "name": "Tabbed object detail in a sheet",
-    "screen": "detail",
-    "kinds": [
-     "analytics",
-     "smb-admin",
-     "builder",
-     "support"
-    ],
-    "basis": "a list's engagement tab; a reports dashboard",
-    "blueprint": "Inside the sheet: a breadcrumb row at 16/600 (the parent in grey, the current page as the h1, a 24px grey type chip after it) with its actions on the right (a text button and an outlined 32px dropdown). Under it, the object's tabs at 14px with a 2px ink underline that runs 8px past the label, on a 1px rule that spans the sheet. 30px below, the filter row: a label above a 300x32 select on the left; the freshness stamp ('Last updated July 21, 2026') and a 40px refresh button on the right, centred on the select's line. Then 3 KPI cards (value 36/400, its label at 16/600 under it, the period in words) and 2 chart cards, all on one 24px gutter so the rows share column lines. Do not stretch a short card to its neighbour's height (it left 250px of dead white) and do not list legend series that have no data.",
-    "phone": "Breadcrumb shortens to a back link and the h1; tabs scroll; KPI cards stack as label-value rows; charts full width."
-   }
-  },
-  {
-   "name": "inbox",
-   "pattern": null
-  },
-  {
-   "name": "settings",
-   "pattern": {
-    "id": "settings-two-column",
-    "name": "Settings in two columns",
-    "screen": "settings",
-    "kinds": [
-     "devtools",
-     "smb-admin",
-     "support",
-     "workspace",
-     "commerce",
-     "analytics",
-     "finance",
-     "wallet",
-     "creator",
-     "community",
-     "builder",
-     "markets",
-     "report"
-    ],
-    "basis": "one settings page; stacking from a narrow rail card. The basis is thin.",
-    "blueprint": "A centred column of about 1152px. Each section is one row: a label column of about 450px (16/500 title, 14px grey description; the title's cap top 6-8px below the panel top, level with the panel's first line) beside a panel of about 700px with a #fafafa fill, 16px radius, 16px padding, no border and no shadow. Sections are split by a full-width 1px rule with 32px above and below. Inside a panel: field labels 14/500 above 40px white inputs (1px #e8e8e8, radius 10), 8px from label to field, 16px between fields, 24px from the description to the first label, 16px to the Save button; switch rows with a 14/500 title, a 20px status badge 8px after it, a 14px grey description and a 28x16 toggle 16px from the right edge, centred on the title line. A plan-gated feature shows a 48px tinted strip with a 32px button directly above its panel, and the panel stays readable. When a panel runs much taller than its label, put the section's help or a summary of the current values in the label column rather than 250px of nothing.",
-    "phone": "Each section stacks: title and description, then the panel at full width. Inside, label, 8-10px, field, 16-26px to the next pair; toggles stay on the right of their title."
    }
   }
  ]

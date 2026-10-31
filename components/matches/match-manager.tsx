@@ -7,6 +7,7 @@ import {
   CirclePlay,
   OctagonAlert,
   Trophy,
+  Users,
 } from "lucide-react";
 import { useActionState, useState } from "react";
 
@@ -20,9 +21,7 @@ import {
   startMatchAction,
   type MatchActionState,
 } from "@/server/matches/actions";
-import type {
-  SessionMatchRecord,
-} from "@/server/matches/queries";
+import type { SessionMatchRecord } from "@/server/matches/queries";
 import { canStartMatch } from "@/shared/matches/rules";
 import type {
   CourtStatus,
@@ -41,16 +40,16 @@ const initialState: MatchActionState = {};
 function MatchFeedback({ state }: { state: MatchActionState }) {
   if (state.error) {
     return (
-      <p className="text-sm text-rose-800" role="alert">
+      <div className="rounded-md border p-3 text-xs font-medium" style={{ borderColor: 'var(--negative)', backgroundColor: 'var(--pill-negative-bg)', color: 'var(--pill-negative-ink)' }} role="alert">
         {state.error}
-      </p>
+      </div>
     );
   }
   if (state.notice) {
     return (
-      <p className="text-sm text-[#39764d]" role="status">
+      <div className="rounded-md border p-3 text-xs font-medium" style={{ borderColor: 'var(--positive)', backgroundColor: 'var(--pill-positive-bg)', color: 'var(--pill-positive-ink)' }} role="status">
         {state.notice}
-      </p>
+      </div>
     );
   }
   return null;
@@ -88,70 +87,77 @@ function AssignNextMatchForm({
   return (
     <form
       action={formAction}
-      className="mt-4 grid gap-3 rounded-xl border border-[#dce3d8] bg-white p-4 sm:grid-cols-[1fr_1fr_auto]"
+      className="rounded-md border p-5 transition"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--raised)' }}
     >
-      <label className="space-y-2 text-sm">
-        <span className="block font-medium text-[#34483b]">Available court</span>
-        <select
-          className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm text-[#20352a] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          defaultValue=""
-          name="court_id"
-          required
-        >
-          <option value="">Choose a court</option>
-          {availableCourts.map((court) => (
-            <option key={court.id} value={court.id}>
-              {court.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="space-y-2 text-sm">
-        <span className="block font-medium text-[#34483b]">Staff notes (optional)</span>
-        <input
-          className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm text-[#20352a] placeholder:text-[#657268] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          maxLength={500}
-          name="notes"
-          placeholder="Notes for facility staff"
-        />
-      </label>
-      <div className="flex flex-col justify-end gap-2">
-        <Button
-          disabled={
-            pending ||
-            sessionStatus !== "open" ||
-            playersPerMatch < 1 ||
-            availableCourts.length === 0
-          }
-          type="submit"
-        >
-          {pending ? (
-            "Assigning..."
-          ) : (
-            <>
-              Assign next {playersPerMatch}
-              <ArrowRight aria-hidden="true" className="size-4" />
-            </>
-          )}
-        </Button>
+      <div className="grid gap-4 sm:grid-cols-[1fr_1fr_auto]">
+        <label className="space-y-1.5 text-sm">
+          <span className="block font-semibold" style={{ color: 'var(--text)' }}>Available court</span>
+          <select
+            className="h-10 w-full rounded-md border px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text)' }}
+            defaultValue=""
+            name="court_id"
+            required
+          >
+            <option value="">Choose a court</option>
+            {availableCourts.map((court) => (
+              <option key={court.id} value={court.id}>
+                {court.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="space-y-1.5 text-sm">
+          <span className="block font-semibold" style={{ color: 'var(--text)' }}>Staff notes (optional)</span>
+          <input
+            className="h-10 w-full rounded-md border px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text)' }}
+            maxLength={500}
+            name="notes"
+            placeholder="Notes for facility staff"
+          />
+        </label>
+        <div className="flex flex-col justify-end">
+          <Button
+            className="h-10 rounded-md px-5 font-semibold text-white transition disabled:opacity-50"
+            style={{ backgroundColor: 'var(--accent)' }}
+            disabled={
+              pending ||
+              sessionStatus !== "open" ||
+              playersPerMatch < 1 ||
+              availableCourts.length === 0
+            }
+            type="submit"
+          >
+            {pending ? (
+              "Assigning..."
+            ) : (
+              <>
+                Assign next {playersPerMatch}
+                <ArrowRight aria-hidden="true" className="ml-1.5 size-4" />
+              </>
+            )}
+          </Button>
+        </div>
       </div>
+
       {!availableCourts.length ? (
-        <p className="text-sm text-[#657268] sm:col-span-3">
+        <p className="mt-3 text-xs font-medium" style={{ color: 'var(--warning)' }}>
           No court assigned to this session is currently available.
         </p>
       ) : null}
       {sessionStatus !== "open" ? (
-        <p className="text-sm text-[#657268] sm:col-span-3">
+        <p className="mt-3 text-xs font-medium" style={{ color: 'var(--warning)' }}>
           New matches can only be assigned while the session is open.
         </p>
       ) : null}
-      <div className="sm:col-span-3">
+      <div className="mt-3">
         <MatchFeedback state={state} />
       </div>
     </form>
   );
 }
-
 function MatchControls({
   facilityId,
   sessionId,
@@ -203,15 +209,21 @@ function MatchControls({
   useActionToast(cancelState);
 
   return (
-    <div className="mt-4 space-y-3 border-t border-[#dce3d8] pt-4">
+    <div className="mt-4 flex flex-wrap items-center gap-3 border-t pt-3" style={{ borderColor: 'var(--rule)' }}>
       {canStartMatch(status, sessionStatus) ? (
-        <form action={startFormAction}>
-          <Button disabled={starting} type="submit">
+        <form action={startFormAction} className="inline-block">
+          <Button
+            className="rounded-md font-semibold text-white transition"
+            style={{ backgroundColor: 'var(--accent)' }}
+            disabled={starting}
+            size="sm"
+            type="submit"
+          >
             {starting ? (
               "Starting..."
             ) : (
               <>
-                <CirclePlay aria-hidden="true" className="size-4" />
+                <CirclePlay aria-hidden="true" className="mr-1.5 size-4" />
                 Start match
               </>
             )}
@@ -222,11 +234,14 @@ function MatchControls({
       {status === "in_progress" ? (
         <>
           <Button
+            className="rounded-md transition"
+            style={{ color: 'var(--accent-ink)', borderColor: 'var(--accent-track)' }}
             onClick={() => setCompleteDialogOpen(true)}
+            size="sm"
             type="button"
             variant="outline"
           >
-            <CheckCircle2 aria-hidden="true" className="size-4" />
+            <CheckCircle2 aria-hidden="true" className="mr-1.5 size-4" style={{ color: 'var(--accent)' }} />
             Complete match
           </Button>
           <Dialog
@@ -236,10 +251,11 @@ function MatchControls({
             title="Complete this match?"
           >
             <form action={completeFormAction} className="space-y-4">
-              <label className="block space-y-2 text-sm font-medium text-[#36463a]">
+              <label className="block space-y-1.5 text-sm font-medium" style={{ color: 'var(--text)' }}>
                 <span>Result or completion notes (optional)</span>
                 <input
-                  className="h-11 w-full rounded-lg border border-[#d6ddcd] bg-white px-3 text-sm text-[#19251e] placeholder:text-[#89948a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7eaa39]"
+                  className="h-10 w-full rounded-md border px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2"
+                  style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text)' }}
                   maxLength={500}
                   name="notes"
                   placeholder="Add a result or note for staff"
@@ -248,13 +264,19 @@ function MatchControls({
               <MatchFeedback state={completeState} />
               <div className="flex flex-col-reverse justify-end gap-2 sm:flex-row">
                 <Button
+                  className="rounded-md"
                   onClick={() => setCompleteDialogOpen(false)}
                   type="button"
                   variant="outline"
                 >
                   Keep in play
                 </Button>
-                <Button disabled={completing} type="submit">
+                <Button
+                  className="rounded-md text-white transition"
+                  style={{ backgroundColor: 'var(--accent)' }}
+                  disabled={completing}
+                  type="submit"
+                >
                   {completing ? "Completing..." : "Complete match"}
                 </Button>
               </div>
@@ -265,12 +287,14 @@ function MatchControls({
       {status === "assigned" || status === "in_progress" ? (
         <>
           <Button
-            className="border-[#e8c8bc] text-[#973f31] hover:bg-[#fff2ed] hover:text-[#87372c]"
+            className="rounded-md transition"
+            style={{ color: 'var(--negative)', borderColor: 'var(--negative)' }}
             onClick={() => setCancelDialogOpen(true)}
+            size="sm"
             type="button"
             variant="outline"
           >
-            <OctagonAlert aria-hidden="true" className="size-4" />
+            <OctagonAlert aria-hidden="true" className="mr-1.5 size-4" style={{ color: 'var(--negative)' }} />
             Cancel match
           </Button>
           <Dialog
@@ -280,10 +304,11 @@ function MatchControls({
             title="Cancel this match?"
           >
             <form action={cancelFormAction} className="space-y-4">
-              <label className="block space-y-2 text-sm font-medium text-[#36463a]">
+              <label className="block space-y-1.5 text-sm font-medium" style={{ color: 'var(--text)' }}>
                 <span>Cancellation reason</span>
                 <input
-                  className="h-11 w-full rounded-lg border border-[#d6ddcd] bg-white px-3 text-sm text-[#19251e] placeholder:text-[#89948a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7eaa39]"
+                  className="h-10 w-full rounded-md border px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2"
+                  style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)', color: 'var(--text)' }}
                   maxLength={500}
                   minLength={3}
                   name="reason"
@@ -294,6 +319,7 @@ function MatchControls({
               <MatchFeedback state={cancelState} />
               <div className="flex flex-col-reverse justify-end gap-2 sm:flex-row">
                 <Button
+                  className="rounded-md"
                   onClick={() => setCancelDialogOpen(false)}
                   type="button"
                   variant="outline"
@@ -301,7 +327,8 @@ function MatchControls({
                   Keep match
                 </Button>
                 <Button
-                  className="bg-[#a33d31] text-[#20352a] hover:bg-[#8e342b]"
+                  className="rounded-md text-white transition"
+                  style={{ backgroundColor: 'var(--negative)' }}
                   disabled={cancelling}
                   type="submit"
                 >
@@ -330,36 +357,76 @@ function MatchCard({
   sessionStatus: SessionStatus;
 }) {
   const isActive = match.status === "assigned" || match.status === "in_progress";
+  const isAssigned = match.status === "assigned";
+  const isInProgress = match.status === "in_progress";
+  const isCompleted = match.status === "completed";
 
   return (
-    <li className="rounded-xl border border-[#dce3d8] bg-white p-4">
+    <li className="rounded-md border p-5 transition" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="font-semibold text-[#20352a]">{match.court_name}</p>
-        <span className="rounded-full border border-[#dce3d8] px-2.5 py-1 text-xs font-semibold capitalize text-[#34483b]">
+        <div className="flex items-center gap-2.5">
+          <span className="font-bold" style={{ color: 'var(--text)' }}>{match.court_name}</span>
+        </div>
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize"
+          style={{
+            backgroundColor: isAssigned
+              ? 'var(--pill-accent-bg)'
+              : isInProgress
+                ? 'var(--pill-positive-bg)'
+                : isCompleted
+                  ? 'var(--pill-neutral-bg)'
+                  : 'var(--pill-negative-bg)',
+            color: isAssigned
+              ? 'var(--pill-accent-ink)'
+              : isInProgress
+                ? 'var(--pill-positive-ink)'
+                : isCompleted
+                  ? 'var(--pill-neutral-ink)'
+                  : 'var(--pill-negative-ink)'
+          }}
+        >
           {match.status.replace("_", " ")}
         </span>
       </div>
-      <p className="mt-2 text-sm text-[#46554b]">
-        {match.player_names.join(", ") || "Players unavailable"}
+
+      <div className="mt-3 flex items-start gap-2 text-sm" style={{ color: 'var(--muted)' }}>
+        <Users aria-hidden="true" className="mt-0.5 size-4 shrink-0" style={{ color: 'var(--control)' }} />
+        <span className="font-medium" style={{ color: 'var(--text)' }}>
+          {match.player_names.join(", ") || "Players unavailable"}
+        </span>
+      </div>
+
+      <p className="mt-2 inline-flex flex-wrap items-center gap-1.5 text-xs" style={{ color: 'var(--muted)' }}>
+        <CalendarClock aria-hidden="true" className="size-3.5" style={{ color: 'var(--control)' }} />
+        <span>Assigned {formatMatchDate(match.assigned_at, timezone)}</span>
+        {match.started_at ? (
+          <>
+            <span>·</span>
+            <span>Started {formatMatchDate(match.started_at, timezone)}</span>
+          </>
+        ) : null}
+        {match.completed_at ? (
+          <>
+            <span>·</span>
+            <span>Completed {formatMatchDate(match.completed_at, timezone)}</span>
+          </>
+        ) : null}
+        {match.cancelled_at ? (
+          <>
+            <span>·</span>
+            <span>Cancelled {formatMatchDate(match.cancelled_at, timezone)}</span>
+          </>
+        ) : null}
       </p>
-      <p className="mt-2 inline-flex items-center gap-2 text-xs text-[#657268]">
-        <CalendarClock aria-hidden="true" className="size-3.5" />
-        Assigned {formatMatchDate(match.assigned_at, timezone)}
-        {match.started_at
-          ? ` · Started ${formatMatchDate(match.started_at, timezone)}`
-          : ""}
-        {match.completed_at
-          ? ` · Completed ${formatMatchDate(match.completed_at, timezone)}`
-          : ""}
-        {match.cancelled_at
-          ? ` · Cancelled ${formatMatchDate(match.cancelled_at, timezone)}`
-          : ""}
-      </p>
+
       {match.notes ? (
-        <p className="mt-2 whitespace-pre-wrap text-sm text-[#657268]">
-          Staff notes: {match.notes}
-        </p>
+        <div className="mt-2.5 rounded-md p-2.5 text-xs" style={{ backgroundColor: 'var(--raised)', color: 'var(--muted)' }}>
+          <span className="font-semibold" style={{ color: 'var(--text)' }}>Staff notes: </span>
+          {match.notes}
+        </div>
       ) : null}
+
       {isActive ? (
         <MatchControls
           facilityId={facilityId}
@@ -400,15 +467,21 @@ export function MatchManager({
   return (
     <section
       aria-label="Match and court management"
-      className="mt-5 rounded-2xl border border-[#dce3d8] bg-[#f7f8f3] p-4"
+      className="space-y-6 rounded-md border p-6"
+      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
     >
-      <h3 className="inline-flex items-center gap-2 font-semibold">
-        <Trophy aria-hidden="true" className="size-4 text-[#52732f]" />
-        Matches and courts
-      </h3>
-      <p className="mt-1 text-sm text-[#657268]">
-        Assigns the next {playersPerMatch} eligible players in FIFO order.
-      </p>
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="flex size-7 items-center justify-center rounded-md" style={{ backgroundColor: 'var(--accent-soft)', color: 'var(--accent)' }}>
+            <Trophy aria-hidden="true" className="size-4" />
+          </span>
+          <h3 className="text-lg font-bold" style={{ color: 'var(--text)' }}>Matches and courts</h3>
+        </div>
+        <p className="mt-1 text-xs" style={{ color: 'var(--muted)' }}>
+          Assigns the next {playersPerMatch} eligible players in FIFO order.
+        </p>
+      </div>
+
       <AssignNextMatchForm
         courts={courts}
         facilityId={facilityId}
@@ -416,8 +489,14 @@ export function MatchManager({
         sessionId={sessionId}
         sessionStatus={sessionStatus}
       />
-      <div className="mt-5">
-        <h4 className="text-sm font-semibold text-[#34483b]">Active matches</h4>
+
+      <div>
+        <div className="flex items-center justify-between pb-2 border-b" style={{ borderColor: 'var(--rule)' }}>
+          <h4 className="text-sm font-bold" style={{ color: 'var(--text)' }}>Active matches</h4>
+          <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--pill-neutral-bg)', color: 'var(--pill-neutral-ink)' }}>
+            {activeMatches.length}
+          </span>
+        </div>
         {activeMatches.length ? (
           <ol className="mt-3 space-y-3">
             {activeMatches.map((match) => (
@@ -432,11 +511,17 @@ export function MatchManager({
             ))}
           </ol>
         ) : (
-          <p className="mt-2 text-sm text-[#657268]">No active matches.</p>
+          <p className="mt-3 text-xs" style={{ color: 'var(--muted)' }}>No active matches.</p>
         )}
       </div>
-      <div className="mt-5 border-t border-[#dce3d8] pt-4">
-        <h4 className="text-sm font-semibold text-[#34483b]">Recent history</h4>
+
+      <div className="pt-2 border-t" style={{ borderColor: 'var(--rule)' }}>
+        <div className="flex items-center justify-between pb-2">
+          <h4 className="text-sm font-bold" style={{ color: 'var(--text)' }}>Recent history</h4>
+          <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ backgroundColor: 'var(--pill-neutral-bg)', color: 'var(--pill-neutral-ink)' }}>
+            {history.length}
+          </span>
+        </div>
         {history.length ? (
           <ol className="mt-3 space-y-3">
             {history.map((match) => (
@@ -451,7 +536,7 @@ export function MatchManager({
             ))}
           </ol>
         ) : (
-          <p className="mt-2 text-sm text-[#657268]">No completed or cancelled matches yet.</p>
+          <p className="mt-3 text-xs" style={{ color: 'var(--muted)' }}>No completed or cancelled matches yet.</p>
         )}
       </div>
     </section>

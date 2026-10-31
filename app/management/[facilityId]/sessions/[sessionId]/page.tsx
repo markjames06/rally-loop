@@ -68,14 +68,14 @@ export default async function SessionOperationsPage({ params }: SessionOperation
     >
       <main className="app-page management-page mx-auto min-h-screen max-w-7xl px-1 sm:px-4">
         <section className="management-route-page">
-          <Link className="management-back-link" href={`/management/${facilityId}/sessions`}><ArrowLeft aria-hidden="true" className="size-4" /> All facility sessions</Link>
+          <Link className="flex items-center gap-1.5 text-xs font-semibold hover:underline" style={{ color: 'var(--muted)' }} href={`/management/${facilityId}/sessions`}><ArrowLeft aria-hidden="true" className="size-4" /> All facility sessions</Link>
           <div className="mt-5">
             <SessionRealtime sessionIds={session && ["open", "paused"].includes(session.status) ? [session.id] : []} />
           </div>
           {coreLoadError || !facility || !sessionWithCourts ? (
-            <p className="player-feedback player-feedback-error mt-5" role="alert">This facility session could not be loaded. Refresh the page to try again.</p>
+            <p className="rounded-md border p-4 text-sm mt-5" style={{ borderColor: 'var(--negative)', backgroundColor: 'var(--pill-negative-bg)', color: 'var(--pill-negative-ink)' }} role="alert">This facility session could not be loaded. Refresh the page to try again.</p>
           ) : !timezoneValid ? (
-            <p className="player-feedback player-feedback-error mt-5" role="alert">
+            <p className="rounded-md border p-4 text-sm mt-5" style={{ borderColor: 'var(--negative)', backgroundColor: 'var(--pill-negative-bg)', color: 'var(--pill-negative-ink)' }} role="alert">
               The facility timezone is invalid. Ask an administrator to correct it before managing this session.
             </p>
           ) : (
@@ -88,7 +88,7 @@ export default async function SessionOperationsPage({ params }: SessionOperation
                 matches={matchesResult.data}
                 queueEntries={queueResult.data?.entries ?? null}
                 session={sessionWithCourts}
-                sessionTimeLabel={`${formatFacilityDateTime(sessionWithCourts.session.starts_at, facility.timezone)}${sessionWithCourts.session.ends_at ? ` � ${formatFacilityDateTime(sessionWithCourts.session.ends_at, facility.timezone)}` : ""}`}
+                sessionTimeLabel={`${formatFacilityDateTime(sessionWithCourts.session.starts_at, facility.timezone)}${sessionWithCourts.session.ends_at ? ` – ${formatFacilityDateTime(sessionWithCourts.session.ends_at, facility.timezone)}` : ""}`}
                 sports={sportsResult.data ?? []}
               />
           )}

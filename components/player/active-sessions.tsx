@@ -1,9 +1,16 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Bolt,
+  CircleHelp,
+  CirclePlay,
+  Clock3,
+  ListOrdered,
+  MapPin,
+} from "lucide-react";
 
 import { formatFacilityDateTime } from "@/shared/facilities/datetime";
 import type { PlayerMatchRecord } from "@/server/matches/queries";
-import { getPlayerSessionStatusLabel } from "@/shared/player/status";
 import type { Database, QueueEntryStatus } from "@/shared/types/database";
 
 type Session = Pick<
@@ -30,64 +37,63 @@ export function PlayerActiveSessions({
   sessions: PlayerActiveSession[];
 }) {
   return (
-    <section aria-labelledby="player-current-session-heading">
-      <div className="player-section-heading">
-        <div>
-          <h2 id="player-current-session-heading">Now</h2>
-          <p>Your place in line and the court you are headed to.</p>
-        </div>
-        <span className="player-live-label">
-          <span aria-hidden="true" /> Live
-        </span>
-      </div>
-      <ul className="player-session-list">
-        {sessions.map((activeSession) => {
-          const { session, facility, match } = activeSession;
-          const onCourt = match?.status === "in_progress";
-          const assigned = match?.status === "assigned" || activeSession.queueStatus === "assigned";
-          const figure = onCourt || assigned
-            ? match?.court_name ?? "Court"
-            : activeSession.queueUnavailable
-              ? "—"
-              : activeSession.queuePosition ?? "—";
-          const figureLabel = onCourt
-            ? "Playing on"
-            : assigned
-              ? "Up next on"
-              : "Place in line";
+    <ul className="player-session-list">
+      {sessions.map(({ session, facility, match, queuePosition, queueStatus, queueUnavailable }) => {
+        const onCourt = match?.status === "in_progress";
+        const assigned = match?.status === "assigned" || queueStatus === "assigned";
+        const status = onCourt
+          ? "On court"
+          : assigned
+            ? "Up next"
+            : queueUnavailable
+              ? "Unavailable"
+              : queuePosition !== null
+                ? `#${queuePosition}`
+                : "In queue";
+        const StatusIcon = onCourt
+          ? CirclePlay
+          : assigned
+            ? Bolt
+            : queueUnavailable
+              ? CircleHelp
+              : ListOrdered;
 
-          return (
-            <li className="player-session-row" key={session.id}>
-              <div className="player-session-place">
-                <span>{figureLabel}</span>
-                <strong>{figure}</strong>
-              </div>
-              <div className="player-session-main">
-                <p className="player-session-name">{session.name}</p>
-                <p className="player-session-facility">{facility.name}</p>
-                <time className="player-session-time" dateTime={session.starts_at}>
-                  {formatFacilityDateTime(session.starts_at, facility.timezone)}
-                </time>
-                <p className="player-session-status">
-                  {getPlayerSessionStatusLabel({
-                    matchStatus: match?.status,
-                    queueStatus: activeSession.queueStatus,
-                    queuePosition: activeSession.queuePosition,
-                    queueUnavailable: activeSession.queueUnavailable,
-                  })}
-                </p>
-              </div>
-              <Link
-                aria-label={`View ${session.name} session`}
-                className="player-session-link"
-                href={`/sessions/${session.id}`}
+        return (
+          <li className="player-session-row" key={session.id}>
+            <div className="player-session-main">
+              <h3 className="player-session-name">{session.name}</h3>
+              <p className="player-session-facility">
+                <MapPin aria-hidden="true" className="size-4" />
+                <span>{facility.name}</span>
+              </p>
+            </div>
+            <div className="player-session-detail">
+              <p
+                aria-label={queuePosition !== null && !assigned && !onCourt
+                  ? `Queue position ${queuePosition}`
+                  : status}
+                className={`player-session-status${onCourt ? " is-playing" : assigned ? " is-assigned" : ""}`}
               >
-                Open session <ArrowRight aria-hidden="true" className="size-4" />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+                <StatusIcon aria-hidden="true" className="size-4" />
+                <strong>{status}</strong>
+                {(onCourt || assigned) && match?.court_name ? <span>{match.court_name}</span> : null}
+              </p>
+              <p className="player-session-time">
+                <Clock3 aria-hidden="true" className="size-4" />
+                <span>{formatFacilityDateTime(session.starts_at, facility.timezone)}</span>
+              </p>
+            </div>
+            <Link
+              aria-label={`View ${session.name} session`}
+              className="player-session-link"
+              href={`/sessions/${session.id}`}
+            >
+              <span className="sr-only">Open session</span>
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

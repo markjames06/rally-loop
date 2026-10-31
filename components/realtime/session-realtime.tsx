@@ -1,5 +1,6 @@
 "use client";
 
+import { Activity, CircleOff, LoaderCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
@@ -14,21 +15,18 @@ export function SessionRealtime({ sessionIds }: { sessionIds: string[] }) {
   const [connectionState, setConnectionState] =
     useState<ConnectionState>("connecting");
   const sessionIdsKey = [...new Set(sessionIds)].sort().join(",");
+  const hasSessions = sessionIdsKey.length > 0;
 
   useEffect(() => {
     const ids = sessionIdsKey ? sessionIdsKey.split(",") : [];
-    if (!ids.length) {
-      return;
-    }
+    if (!ids.length) return;
 
     const supabase = createClient();
     const channelStates = new Map<string, ConnectionState>();
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
     const refreshFromServer = () => {
-      if (refreshTimer) {
-        clearTimeout(refreshTimer);
-      }
+      if (refreshTimer) clearTimeout(refreshTimer);
       refreshTimer = setTimeout(() => {
         startRefresh(() => router.refresh());
       }, 150);
@@ -56,42 +54,58 @@ export function SessionRealtime({ sessionIds }: { sessionIds: string[] }) {
                 ? "reconnecting"
                 : "connecting",
           );
-          if (subscribed) {
-            refreshFromServer();
-          }
+          if (subscribed) refreshFromServer();
         });
       return channel;
     });
 
     return () => {
-      if (refreshTimer) {
-        clearTimeout(refreshTimer);
-      }
-      for (const channel of channels) {
-        void supabase.removeChannel(channel);
-      }
+      if (refreshTimer) clearTimeout(refreshTimer);
+      for (const channel of channels) void supabase.removeChannel(channel);
     };
   }, [router, sessionIdsKey]);
 
-  const statusText =
-    connectionState === "connected"
+  const statusLabel = !hasSessions
+    ? "No active games"
+    : connectionState === "connected"
+      ? "Live"
+      : connectionState === "reconnecting"
+        ? "Reconnecting"
+        : "Connecting";
+  const statusDescription = !hasSessions
+    ? "Join a game to get live court updates."
+    : connectionState === "connected"
       ? "Live updates connected"
       : connectionState === "reconnecting"
         ? "Connection interrupted. Reconnecting; displayed data may be stale."
-        : "Connecting to live updates…";
+        : "Connecting to live updates";
+  const StatusIcon = !hasSessions
+    ? CircleOff
+    : connectionState === "connected"
+      ? Activity
+      : LoaderCircle;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-slate-900/70 p-3 sm:flex-row sm:items-center sm:justify-between">
-      <p aria-live="polite" className="text-sm text-slate-300" role="status">
-        {sessionIds.length ? statusText : "Live updates are not available for this view."}
-      </p>
+    <div className={`player-sync${hasSessions ? ` is-${connectionState}` : " is-idle"}`}>
+      <div className="player-sync-state" role="status" aria-live="polite">
+        <span className="player-sync-icon" aria-hidden="true">
+          <StatusIcon className={connectionState === "connecting" && hasSessions ? "is-spinning" : ""} />
+        </span>
+        <span className="player-sync-copy">
+          <strong>{statusLabel}</strong>
+          <span className="sr-only">{statusDescription}</span>
+        </span>
+      </div>
       <Button
+        aria-label={isRefreshing ? "Refreshing player data" : "Refresh player data"}
+        className="player-sync-refresh"
         disabled={isRefreshing}
         onClick={() => startRefresh(() => router.refresh())}
+        title="Refresh player data"
         type="button"
         variant="outline"
       >
-        {isRefreshing ? "Refreshing…" : "Refresh"}
+        <RefreshCw aria-hidden="true" className={isRefreshing ? "is-spinning" : ""} />
       </Button>
     </div>
   );

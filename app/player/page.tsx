@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { PlayerMatchHistory } from "@/components/matches/match-history";
@@ -155,15 +155,6 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
     return leftPriority - rightPriority;
   });
 
-  const leadSession = activeSessionCards[0];
-  const finding = leadSession?.match?.status === "in_progress"
-    ? `On court now: ${leadSession.match.court_name}.`
-    : leadSession?.match?.status === "assigned" || leadSession?.queueStatus === "assigned"
-      ? `Up next on ${leadSession.match?.court_name ?? "court"}.`
-      : leadSession?.queuePosition
-        ? `You are #${leadSession.queuePosition} in ${leadSession.session.name}.`
-        : "No active session yet. Find an open game to join.";
-
   return (
     <AppShell
       facilityName={undefined}
@@ -175,20 +166,17 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
       <section className="player-overview">
         <div className="player-heading">
           <div>
-            <h1>
-              {profile?.display_name ? `${profile.display_name}’s court` : "Your court"}
-            </h1>
-            <p className="player-finding">{finding}</p>
+            <h1>Your games</h1>
           </div>
           {activeSessionCards.length ? (
             <Link className="player-text-link" href="/sessions">
-              Find another session
-              <ArrowRight aria-hidden="true" className="size-4" />
+              <Search aria-hidden="true" className="size-4" />
+              Find a game
             </Link>
           ) : (
             <Link className="player-primary-action" href="/sessions">
-              Browse open sessions
-              <ArrowRight aria-hidden="true" className="size-4" />
+              <Search aria-hidden="true" className="size-4" />
+              Find a game
             </Link>
           )}
         </div>
@@ -206,8 +194,7 @@ export default async function PlayerPage({ searchParams }: PlayerPageProps) {
           ) : (
             <div className="player-next-session">
               <div>
-                <h2>No active session yet</h2>
-                <p>Choose an open session to see the courts and join its queue.</p>
+                <h2>Ready to play?</h2>
               </div>
             </div>
           )}
